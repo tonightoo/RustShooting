@@ -14,14 +14,14 @@ impl Plugin for GameOverPlugin {
     }
 }
 
-fn setup_game_over(mut commands: Commands) {}
+fn setup_game_over(_commands: Commands) {}
 
 fn game_over_system(
     mut next_state: ResMut<NextState<GameState>>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
     println!("Game Over: Press R to Restart");
-    if keyboard.just_pressed(KeyCode::Space) {
+    if keyboard.just_pressed(KeyCode::KeyR) {
         next_state.set(GameState::Playing);
     }
 }
