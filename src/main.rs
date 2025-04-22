@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+mod enemy;
+mod player;
 mod states;
 use states::*;
 use states::{GameOverPlugin, PlayingPlugin};
