@@ -9,14 +9,23 @@ pub struct Player;
 #[derive(Component)]
 pub struct Bullet;
 
+#[derive(Resource)]
+pub struct BulletCooldown {
+    timer: Timer,
+}
+
 impl Plugin for PlayingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup_playing)
-            .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, player_shoot.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, bullet_movement.run_if(in_state(GameState::Playing)))
-            .add_systems(OnExit(GameState::Playing), cleanup_playing);
+        app.insert_resource(BulletCooldown {
+            timer: Timer::from_seconds(0.2, TimerMode::Repeating),
+        })
+        .add_systems(OnEnter(GameState::Playing), setup_playing)
+        .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)))
+        .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
+        .add_systems(Update, player_shoot.run_if(in_state(GameState::Playing)))
+        .add_systems(Update, bullet_movement.run_if(in_state(GameState::Playing)))
+        .add_systems(OnExit(GameState::Playing), cleanup_player)
+        .add_systems(OnExit(GameState::Playing), cleanup_bullet);
     }
 }
 
@@ -69,8 +78,15 @@ fn player_shoot(
     keyboard: Res<ButtonInput<KeyCode>>,
     query: Query<&Transform, With<Player>>,
     mut commands: Commands,
+    mut cooldown: ResMut<BulletCooldown>,
+    time: Res<Time>,
 ) {
+    cooldown.timer.tick(time.delta());
     if !keyboard.pressed(KeyCode::Space) {
+        return;
+    }
+
+    if !cooldown.timer.finished() {
         return;
     }
 
@@ -116,7 +132,13 @@ fn playing_system(
     }
 }
 
-fn cleanup_playing(mut commands: Commands, mut query: Query<Entity, With<Player>>) {
+fn cleanup_player(mut commands: Commands, mut query: Query<Entity, With<Player>>) {
     let entity = query.single_mut();
-    commands.entity(entity).despawn();
+    commands.entity(entity).despawn_recursive();
+}
+
+fn cleanup_bullet(mut commands: Commands, query: Query<Entity, With<Bullet>>) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
 }
