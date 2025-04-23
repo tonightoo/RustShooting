@@ -1,13 +1,6 @@
 use crate::GameState;
+use crate::components::enemy::*;
 use bevy::prelude::*;
-
-#[derive(Component)]
-pub struct Enemy;
-
-#[derive(Resource)]
-pub struct EnemySpawnTimer {
-    timer: Timer,
-}
 
 pub struct EnemyPlugin;
 
@@ -48,7 +41,7 @@ fn enemy_movement(
     const SPEED: f32 = 300.0;
 
     for (entity, mut transform) in &mut query {
-        transform.translation.y -= -1.0 * SPEED * time.delta_secs();
+        transform.translation.y -= 1.0 * SPEED * time.delta_secs();
 
         if transform.translation.y <= -380.0 {
             commands.entity(entity).despawn();

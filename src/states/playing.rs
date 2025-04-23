@@ -1,6 +1,7 @@
 use crate::GameState;
-use crate::enemy::EnemyPlugin;
-use crate::player::PlayerPlugin;
+use crate::systems::bullet::BulletPlugin;
+use crate::systems::enemy::EnemyPlugin;
+use crate::systems::player::PlayerPlugin;
 use bevy::prelude::*;
 
 pub struct PlayingPlugin;
@@ -9,6 +10,7 @@ impl Plugin for PlayingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
+            .add_plugins(BulletPlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
     }
 }
