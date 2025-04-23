@@ -29,27 +29,44 @@ fn player_movement(
     mut query: Query<&mut Transform, With<Player>>,
     time: Res<Time>,
 ) {
-    const SPEED: f32 = 300.0;
+    const SPEED: f32 = 500.0;
 
     for mut transform in &mut query {
-        let mut direction = 0.0;
+        let mut x_direction = 0.0;
+        let mut y_direction = 0.0;
         if keyboard.pressed(KeyCode::ArrowLeft)
             || keyboard.pressed(KeyCode::KeyA)
             || keyboard.pressed(KeyCode::KeyH)
         {
-            direction -= 1.0;
+            x_direction -= 1.0;
         }
 
         if keyboard.pressed(KeyCode::ArrowRight)
             || keyboard.pressed(KeyCode::KeyD)
             || keyboard.pressed(KeyCode::KeyL)
         {
-            direction += 1.0;
+            x_direction += 1.0;
         }
 
-        transform.translation.x += direction * SPEED * time.delta_secs();
+        if keyboard.pressed(KeyCode::ArrowDown)
+            || keyboard.pressed(KeyCode::KeyS)
+            || keyboard.pressed(KeyCode::KeyJ)
+        {
+            y_direction -= 1.0;
+        }
 
-        transform.translation.x = transform.translation.x.clamp(-220.0, 220.0);
+        if keyboard.pressed(KeyCode::ArrowUp)
+            || keyboard.pressed(KeyCode::KeyW)
+            || keyboard.pressed(KeyCode::KeyK)
+        {
+            y_direction += 1.0;
+        }
+
+        transform.translation.x += x_direction * SPEED * time.delta_secs();
+        transform.translation.x = transform.translation.x.clamp(-225.0, 225.0);
+
+        transform.translation.y += y_direction * SPEED * time.delta_secs();
+        transform.translation.y = transform.translation.y.clamp(-340.0, 340.0);
     }
 }
 
