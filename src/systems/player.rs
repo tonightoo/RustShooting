@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::components::collider::*;
 use crate::components::player::Player;
 use bevy::prelude::*;
 
@@ -20,6 +21,12 @@ fn spawn_player(mut commands: Commands) {
             ..default()
         },
         Transform::from_xyz(0.0, -300.0, 0.0),
+        Collider {
+            shape: ColliderShape::Rectangle {
+                size: Vec2::new(30.0, 40.0),
+            },
+            tag: ColliderTag::Player,
+        },
         Player,
     ));
 }

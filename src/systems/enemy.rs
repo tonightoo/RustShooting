@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::components::collider::*;
 use crate::components::enemy::*;
 use bevy::prelude::*;
 use rand::Rng;
@@ -33,6 +34,12 @@ fn spawn_enemy(mut commands: Commands, mut interval: ResMut<EnemySpawnTimer>, ti
             ..default()
         },
         Transform::from_xyz(x, 340.0, 0.0),
+        Collider {
+            shape: ColliderShape::Rectangle {
+                size: Vec2::new(20.0, 20.0),
+            },
+            tag: ColliderTag::Enemy,
+        },
         Enemy,
     ));
 }

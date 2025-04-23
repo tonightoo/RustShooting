@@ -1,5 +1,6 @@
 use crate::GameState;
 use crate::components::bullet::*;
+use crate::components::collider::*;
 use crate::components::player::Player;
 use bevy::prelude::*;
 
@@ -43,6 +44,12 @@ fn bullet_spawn(
             Transform {
                 translation: Vec3::new(player_pos.x, player_pos.y + 30.0, 0.0),
                 ..default()
+            },
+            Collider {
+                shape: ColliderShape::Rectangle {
+                    size: Vec2::new(3.0, 3.0),
+                },
+                tag: ColliderTag::Bullet,
             },
             Bullet,
         ));
