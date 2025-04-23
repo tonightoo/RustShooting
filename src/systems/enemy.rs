@@ -1,13 +1,14 @@
 use crate::GameState;
 use crate::components::enemy::*;
 use bevy::prelude::*;
+use rand::Rng;
 
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(EnemySpawnTimer {
-            timer: Timer::from_seconds(10.0, TimerMode::Repeating),
+            timer: Timer::from_seconds(2.0, TimerMode::Repeating),
         })
         .add_systems(Update, spawn_enemy.run_if(in_state(GameState::Playing)))
         .add_systems(Update, enemy_movement.run_if(in_state(GameState::Playing)))
@@ -22,13 +23,16 @@ fn spawn_enemy(mut commands: Commands, mut interval: ResMut<EnemySpawnTimer>, ti
         return;
     }
 
+    let mut rng = rand::rng();
+    let x = rng.random_range(-220.0..220.0);
+
     commands.spawn((
         Sprite {
             color: Color::srgb(1.0, 0.5, 0.0),
             custom_size: Some(Vec2::new(20.0, 20.0)),
             ..default()
         },
-        Transform::from_xyz(0.0, 340.0, 0.0),
+        Transform::from_xyz(x, 340.0, 0.0),
         Enemy,
     ));
 }
