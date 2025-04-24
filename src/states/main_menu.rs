@@ -14,7 +14,7 @@ impl Plugin for MainMenuPlugin {
 fn setup_menu(_commands: Commands) {}
 
 fn menu_system(mut next_state: ResMut<NextState<GameState>>, keyboard: Res<ButtonInput<KeyCode>>) {
-    println!("Main Menu: Press Start to Play");
+    //println!("Main Menu: Press Start to Play");
     if keyboard.just_pressed(KeyCode::Space) {
         next_state.set(GameState::Playing);
     }

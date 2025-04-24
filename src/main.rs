@@ -2,6 +2,7 @@ use bevy::prelude::*;
 mod components;
 mod states;
 mod systems;
+use crate::systems::explosion::ExplosionPlugin;
 use states::*;
 use states::{GameOverPlugin, PlayingPlugin};
 
@@ -30,6 +31,7 @@ fn main() {
         .add_plugins(MainMenuPlugin)
         .add_plugins(PlayingPlugin)
         .add_plugins(GameOverPlugin)
+        .add_plugins(ExplosionPlugin)
         .run();
 }
 

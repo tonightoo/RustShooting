@@ -24,7 +24,7 @@ fn playing_system(
     mut next_state: ResMut<NextState<GameState>>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
-    println!("Playing: Game is on!");
+    //println!("Playing: Game is on!");
     if keyboard.just_pressed(KeyCode::Escape) {
         next_state.set(GameState::GameOver);
     }

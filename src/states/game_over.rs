@@ -20,7 +20,7 @@ fn game_over_system(
     mut next_state: ResMut<NextState<GameState>>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
-    println!("Game Over: Press R to Restart");
+    //println!("Game Over: Press R to Restart");
     if keyboard.just_pressed(KeyCode::KeyR) {
         next_state.set(GameState::Playing);
     }

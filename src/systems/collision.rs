@@ -1,7 +1,13 @@
 use crate::components::collider::*;
+use crate::components::explosion::ExplosionAsset;
+use crate::systems::explosion::spawn_explosion;
 use bevy::prelude::*;
 
-pub fn collision_system(query: Query<(Entity, &Transform, &Collider)>, mut commands: Commands) {
+pub fn collision_system(
+    query: Query<(Entity, &Transform, &Collider)>,
+    mut commands: Commands,
+    explosion: Res<ExplosionAsset>,
+) {
     let mut pairs = query.iter_combinations::<2>();
 
     while let Some([(e1, t1, c1), (e2, t2, c2)]) = pairs.fetch_next() {
@@ -29,10 +35,16 @@ pub fn collision_system(query: Query<(Entity, &Transform, &Collider)>, mut comma
                 | (ColliderTag::Enemy, ColliderTag::Player) => {
                     //damage
                 }
-                (ColliderTag::Enemy, ColliderTag::Bullet)
-                | (ColliderTag::Bullet, ColliderTag::Enemy) => {
+                (ColliderTag::Enemy, ColliderTag::Bullet) => {
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
+                    spawn_explosion(&mut commands, t1.translation.clone(), &explosion);
+                    println!("");
+                }
+                (ColliderTag::Bullet, ColliderTag::Enemy) => {
+                    commands.entity(e1).despawn();
+                    commands.entity(e2).despawn();
+                    spawn_explosion(&mut commands, t2.translation.clone(), &explosion);
                 }
                 _ => {}
             }
