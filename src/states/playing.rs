@@ -1,6 +1,7 @@
 use crate::GameState;
+use crate::systems::animation::AnimationPlugin;
 use crate::systems::bullet::BulletPlugin;
-use crate::systems::collision::collision_system;
+use crate::systems::collision::CollisionPlugin;
 use crate::systems::enemy::EnemyPlugin;
 use crate::systems::player::PlayerPlugin;
 use bevy::prelude::*;
@@ -12,10 +13,8 @@ impl Plugin for PlayingPlugin {
         app.add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(BulletPlugin)
-            .add_systems(
-                Update,
-                collision_system.run_if(in_state(GameState::Playing)),
-            )
+            .add_plugins(AnimationPlugin)
+            .add_plugins(CollisionPlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
     }
 }

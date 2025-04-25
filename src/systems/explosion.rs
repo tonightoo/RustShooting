@@ -21,7 +21,7 @@ fn load_explosion_asset(
     let layout = TextureAtlasLayout::from_grid(UVec2::new(170, 196), 4, 1, None, None);
     let layout_handle = texture_atlas_layouts.add(layout);
 
-    let explosion_config = AnimationConfig::new(1, 4, 10);
+    let explosion_config = AnimationConfig::new(0, 3, 10);
 
     commands.insert_resource(ExplosionAsset {
         texture,
@@ -40,5 +40,6 @@ pub fn spawn_explosion(commands: &mut Commands, position: Vec3, explosion_asset:
             },
         ),
         Transform::from_translation(position),
+        explosion_asset.anim_config.clone(),
     ));
 }

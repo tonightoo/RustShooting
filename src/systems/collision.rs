@@ -1,7 +1,19 @@
+use crate::GameState;
 use crate::components::collider::*;
 use crate::components::explosion::ExplosionAsset;
 use crate::systems::explosion::spawn_explosion;
 use bevy::prelude::*;
+
+pub struct CollisionPlugin;
+
+impl Plugin for CollisionPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            collision_system.run_if(in_state(GameState::Playing)),
+        );
+    }
+}
 
 pub fn collision_system(
     query: Query<(Entity, &Transform, &Collider)>,
