@@ -2,13 +2,21 @@ use bevy::prelude::*;
 
 use crate::GameState;
 use crate::components::animation::*;
-use crate::components::explosion::ExplosionAsset;
+use crate::components::explosion::*;
+use crate::systems::sets::MySystemSet;
 
 pub struct ExplosionPlugin;
 
 impl Plugin for ExplosionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), load_explosion_asset);
+        app.add_systems(
+            OnEnter(GameState::Playing),
+            load_explosion_asset.in_set(MySystemSet::LoadAssets),
+        )
+        .add_systems(
+            OnEnter(GameState::Playing),
+            load_explosion_sound.in_set(MySystemSet::LoadAssets),
+        );
     }
 }
 
@@ -28,6 +36,14 @@ fn load_explosion_asset(
         layout: layout_handle,
         anim_config: explosion_config,
     })
+}
+
+fn load_explosion_sound(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let explosion_sound = asset_server.load("explosion.ogg");
+
+    commands.insert_resource(ExplosionSound {
+        sound: explosion_sound,
+    });
 }
 
 pub fn spawn_explosion(commands: &mut Commands, position: Vec3, explosion_asset: &ExplosionAsset) {

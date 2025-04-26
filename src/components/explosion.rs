@@ -7,3 +7,8 @@ pub struct ExplosionAsset {
     pub layout: Handle<TextureAtlasLayout>,
     pub anim_config: AnimationConfig,
 }
+
+#[derive(Resource)]
+pub struct ExplosionSound {
+    pub sound: Handle<bevy_kira_audio::AudioSource>,
+}

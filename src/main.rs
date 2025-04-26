@@ -25,7 +25,8 @@ fn main() {
             }),
             ..default()
         }))
-        .insert_resource(ClearColor(Color::BLACK))
+        .add_plugins(bevy_kira_audio::prelude::AudioPlugin)
+        .insert_resource(ClearColor(Color::srgb(0.7, 0.44, 0.25)))
         .init_state::<GameState>()
         .add_systems(Startup, setup)
         .add_plugins(MainMenuPlugin)
