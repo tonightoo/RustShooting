@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::GameState;
-use crate::components::animation::AnimationConfig;
+use crate::components::animation::*;
 use crate::components::explosion::ExplosionAsset;
 
 pub struct ExplosionPlugin;
@@ -21,7 +21,7 @@ fn load_explosion_asset(
     let layout = TextureAtlasLayout::from_grid(UVec2::new(170, 196), 4, 1, None, None);
     let layout_handle = texture_atlas_layouts.add(layout);
 
-    let explosion_config = AnimationConfig::new(0, 3, 10);
+    let explosion_config = AnimationConfig::new(0, 3, 10, AnimationType::Once);
 
     commands.insert_resource(ExplosionAsset {
         texture,

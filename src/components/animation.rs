@@ -11,13 +11,13 @@ pub struct AnimationConfig {
 }
 
 impl AnimationConfig {
-    pub fn new(first: usize, last: usize, fps: u8) -> Self {
+    pub fn new(first: usize, last: usize, fps: u8, aninm_type: AnimationType) -> Self {
         Self {
             first_sprite_index: first,
             last_sprite_index: last,
             fps,
             timer: Self::timer_from_fps(fps),
-            animation_type: AnimationType::Once,
+            animation_type: aninm_type,
         }
     }
 

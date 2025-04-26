@@ -51,7 +51,6 @@ pub fn collision_system(
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
                     spawn_explosion(&mut commands, t1.translation.clone(), &explosion);
-                    println!("");
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
                     commands.entity(e1).despawn();

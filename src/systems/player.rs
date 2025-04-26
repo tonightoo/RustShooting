@@ -1,25 +1,40 @@
 use crate::GameState;
 use crate::components::collider::*;
 use crate::components::player::Player;
+use crate::components::player::PlayerAsset;
+use crate::systems::sets::MySystemSet;
 use bevy::prelude::*;
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), spawn_player)
-            .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
-            .add_systems(OnExit(GameState::Playing), cleanup_player);
+        app.add_systems(
+            OnEnter(GameState::Playing),
+            load_player_asset.in_set(MySystemSet::LoadAssets),
+        )
+        .add_systems(
+            OnEnter(GameState::Playing),
+            spawn_player.after(MySystemSet::LoadAssets),
+        )
+        .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
+        .add_systems(OnExit(GameState::Playing), cleanup_player);
     }
 }
 
-fn spawn_player(mut commands: Commands) {
+fn load_player_asset(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let texture = asset_server.load("Rocket.png");
+    commands.insert_resource(PlayerAsset { texture });
+}
+
+fn spawn_player(mut commands: Commands, player_asset: Res<PlayerAsset>) {
     commands.spawn((
-        Sprite {
-            color: Color::srgb(0.3, 0.7, 1.0),
-            custom_size: Some(Vec2::new(30.0, 40.0)),
-            ..default()
-        },
+        Sprite::from_image(player_asset.texture.clone()),
+        //Sprite {
+        //    color: Color::srgb(0.3, 0.7, 1.0),
+        //    custom_size: Some(Vec2::new(30.0, 40.0)),
+        //    ..default()
+        //},
         Transform::from_xyz(0.0, -300.0, 0.0),
         Collider {
             shape: ColliderShape::Rectangle {

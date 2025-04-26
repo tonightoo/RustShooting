@@ -43,7 +43,7 @@ pub fn execute_animation(
     }
 }
 
-pub fn cleanup_animations(mut commands: Commands, mut query: Query<Entity, With<AnimationConfig>>) {
+pub fn cleanup_animations(mut commands: Commands, query: Query<Entity, With<AnimationConfig>>) {
     for entity in &query {
         commands.entity(entity).despawn_recursive();
     }
