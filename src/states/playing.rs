@@ -4,6 +4,7 @@ use crate::systems::bullet::BulletPlugin;
 use crate::systems::collision::CollisionPlugin;
 use crate::systems::enemy::EnemyPlugin;
 use crate::systems::player::PlayerPlugin;
+use crate::systems::score::ScorePlugin;
 use bevy::prelude::*;
 
 pub struct PlayingPlugin;
@@ -15,6 +16,7 @@ impl Plugin for PlayingPlugin {
             .add_plugins(BulletPlugin)
             .add_plugins(AnimationPlugin)
             .add_plugins(CollisionPlugin)
+            .add_plugins(ScorePlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
     }
 }
