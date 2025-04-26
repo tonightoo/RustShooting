@@ -14,7 +14,9 @@ impl Plugin for GameOverPlugin {
     }
 }
 
-fn setup_game_over(_commands: Commands) {}
+fn setup_game_over(mut commands: Commands) {
+    commands.insert_resource(ClearColor(Color::BLACK));
+}
 
 fn game_over_system(
     mut next_state: ResMut<NextState<GameState>>,

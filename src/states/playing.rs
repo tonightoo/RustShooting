@@ -11,7 +11,8 @@ pub struct PlayingPlugin;
 
 impl Plugin for PlayingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PlayerPlugin)
+        app.add_systems(OnEnter(GameState::Playing), initialize_background)
+            .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(BulletPlugin)
             .add_plugins(AnimationPlugin)
@@ -19,6 +20,10 @@ impl Plugin for PlayingPlugin {
             .add_plugins(ScorePlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
     }
+}
+
+fn initialize_background(mut commands: Commands) {
+    commands.insert_resource(ClearColor(Color::srgb(0.7, 0.44, 0.25)));
 }
 
 fn playing_system(

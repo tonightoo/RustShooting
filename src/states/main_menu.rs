@@ -11,13 +11,31 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
-fn setup_menu(_commands: Commands) {}
+fn setup_menu(mut commands: Commands) {
+    commands.spawn((
+        Text::new("- Press Space to Start -"),
+        TextFont {
+            font_size: 20.0,
+            ..default()
+        },
+        TextLayout::new_with_justify(JustifyText::Center),
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Percent(60.0),
+            left: Val::Percent(20.0),
+            ..default()
+        },
+    ));
+}
 
 fn menu_system(mut next_state: ResMut<NextState<GameState>>, keyboard: Res<ButtonInput<KeyCode>>) {
-    //println!("Main Menu: Press Start to Play");
     if keyboard.just_pressed(KeyCode::Space) {
         next_state.set(GameState::Playing);
     }
 }
 
-fn cleanup_menu() {}
+fn cleanup_menu(mut commands: Commands, query: Query<Entity, With<Text>>) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+}
