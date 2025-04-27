@@ -62,6 +62,6 @@ pub fn spawn_explosion(
         ),
         Transform::from_translation(position),
         explosion_asset.anim_config.clone(),
-        tag,
+        tag.clone(),
     ));
 }

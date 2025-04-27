@@ -1,6 +1,7 @@
 use crate::GameState;
 use crate::components::collider::*;
 use crate::components::explosion::*;
+use crate::components::player::*;
 use crate::components::score::Score;
 use crate::components::wave::*;
 use crate::systems::explosion::spawn_explosion;
@@ -21,10 +22,12 @@ impl Plugin for CollisionPlugin {
 
 pub fn collision_system(
     query: Query<(Entity, &Transform, &Collider)>,
+    mut player_query: Query<&mut Player>,
     mut commands: Commands,
     explosion: Res<ExplosionAsset>,
     audio: Res<bevy_kira_audio::prelude::Audio>,
-    sound_asset: Res<ExplosionSound>,
+    explosion_sound: Res<ExplosionSound>,
+    damage_sound: Res<DamageSound>,
     mut score: ResMut<Score>,
     mut waves: ResMut<Waves>,
 ) {
@@ -52,24 +55,46 @@ pub fn collision_system(
         if collision {
             match (c1.tag, c2.tag) {
                 (ColliderTag::Player, ColliderTag::Enemy) => {
-                    spawn_explosion(
-                        &mut commands,
-                        t1.translation.clone(),
-                        &explosion,
-                        ExplosionTag::Player,
-                    );
-                    audio.play(sound_asset.sound.clone()).with_volume(0.2);
-                    commands.entity(e1).despawn();
+                    if let Ok(mut player) = player_query.get_mut(e1) {
+                        if player.invincible_timer.finished() {
+                            player.hp -= 1;
+                            player.invincible_timer = Timer::from_seconds(2.0, TimerMode::Once);
+
+                            if player.hp <= 0 {
+                                spawn_explosion(
+                                    &mut commands,
+                                    t1.translation.clone(),
+                                    &explosion,
+                                    ExplosionTag::Player,
+                                );
+                                audio.play(explosion_sound.sound.clone()).with_volume(0.2);
+                                commands.entity(e1).despawn();
+                            } else {
+                                audio.play(damage_sound.sound.clone()).with_volume(0.2);
+                            }
+                        }
+                    }
                 }
                 (ColliderTag::Enemy, ColliderTag::Player) => {
-                    spawn_explosion(
-                        &mut commands,
-                        t2.translation.clone(),
-                        &explosion,
-                        ExplosionTag::Player,
-                    );
-                    audio.play(sound_asset.sound.clone()).with_volume(0.2);
-                    commands.entity(e2).despawn();
+                    if let Ok(mut player) = player_query.get_mut(e2) {
+                        if player.invincible_timer.finished() {
+                            player.hp -= 1;
+                            player.invincible_timer = Timer::from_seconds(2.0, TimerMode::Once);
+
+                            if player.hp < 0 {
+                                spawn_explosion(
+                                    &mut commands,
+                                    t2.translation.clone(),
+                                    &explosion,
+                                    ExplosionTag::Player,
+                                );
+                                audio.play(explosion_sound.sound.clone()).with_volume(0.2);
+                                commands.entity(e2).despawn();
+                            } else {
+                                audio.play(damage_sound.sound.clone()).with_volume(0.2);
+                            }
+                        }
+                    }
                 }
                 (ColliderTag::Enemy, ColliderTag::Bullet) => {
                     commands.entity(e1).despawn();
@@ -80,7 +105,7 @@ pub fn collision_system(
                         &explosion,
                         ExplosionTag::Enemy,
                     );
-                    audio.play(sound_asset.sound.clone()).with_volume(0.2);
+                    audio.play(explosion_sound.sound.clone()).with_volume(0.2);
                     score.score += 100;
                     let current_wave = waves.current_wave;
                     waves.waves[current_wave].defeated_count += 1;
@@ -94,7 +119,7 @@ pub fn collision_system(
                         &explosion,
                         ExplosionTag::Enemy,
                     );
-                    audio.play(sound_asset.sound.clone()).with_volume(0.2);
+                    audio.play(explosion_sound.sound.clone()).with_volume(0.2);
                     score.score += 100;
                     let current_wave = waves.current_wave;
                     waves.waves[current_wave].defeated_count += 1;

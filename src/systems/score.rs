@@ -25,7 +25,7 @@ fn load_score(mut commands: Commands) {
     commands.insert_resource(Score { score: 0 })
 }
 
-fn spawn_score(mut commands: Commands, score: Res<Score>) {
+fn spawn_score(mut commands: Commands) {
     commands
         .spawn((Text::new(format!("Score: ")), ScoreText))
         .with_child((TextSpan::default(), ScoreText));

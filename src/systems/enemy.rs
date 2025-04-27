@@ -2,6 +2,7 @@ use crate::GameState;
 use crate::components::animation::*;
 use crate::components::collider::*;
 use crate::components::enemy::*;
+use crate::components::player::Player;
 use crate::components::wave::*;
 use bevy::prelude::*;
 use rand::Rng;
@@ -43,6 +44,7 @@ fn spawn_enemy(
     mut interval: ResMut<EnemySpawnTimer>,
     time: Res<Time>,
     enemy_asset: Res<EnemyAsset>,
+    query: Query<Entity, With<Player>>,
 ) {
     interval.timer.tick(time.delta());
 
@@ -50,8 +52,21 @@ fn spawn_enemy(
         return;
     }
 
+    if let Ok(player) = query.get_single() {
+    } else {
+        return;
+    }
+
     let mut rng = rand::rng();
     let x = rng.random_range(-210.0..210.0);
+
+    let move_id = rng.random_range(0..3);
+    let move_pattern = match move_id {
+        0 => EnemyMovePattern::Straight,
+        1 => EnemyMovePattern::Zigzag,
+        2 => EnemyMovePattern::Homing,
+        _ => EnemyMovePattern::Straight,
+    };
 
     commands.spawn((
         Sprite::from_atlas_image(
@@ -75,19 +90,36 @@ fn spawn_enemy(
             tag: ColliderTag::Enemy,
         },
         Enemy,
+        move_pattern,
     ));
 }
 
 fn enemy_movement(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Transform), With<Enemy>>,
+    mut enemy_query: Query<(Entity, &mut Transform, &EnemyMovePattern), With<Enemy>>,
+    player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
     time: Res<Time>,
     waves: Res<Waves>,
 ) {
     let speed: f32 = waves.waves[waves.current_wave].enemy_speed;
 
-    for (entity, mut transform) in &mut query {
-        transform.translation.y -= 1.0 * speed * time.delta_secs();
+    for (entity, mut transform, pattern) in &mut enemy_query {
+        match pattern {
+            EnemyMovePattern::Straight => {
+                transform.translation.y -= speed * time.delta_secs();
+            }
+            EnemyMovePattern::Zigzag => {
+                transform.translation.y -= speed * time.delta_secs();
+                transform.translation.x +=
+                    (time.elapsed_secs() * 5.0).sin() * speed * time.delta_secs();
+            }
+            EnemyMovePattern::Homing => {
+                if let Ok(player) = player_query.get_single() {
+                    let direction = (player.translation - transform.translation).normalize();
+                    transform.translation += direction * speed * time.delta_secs();
+                }
+            }
+        }
 
         if transform.translation.y <= -380.0 {
             commands.entity(entity).despawn_recursive();

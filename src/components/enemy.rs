@@ -15,3 +15,10 @@ pub struct EnemyAsset {
     pub layout: Handle<TextureAtlasLayout>,
     pub anim_config: AnimationConfig,
 }
+
+#[derive(Component, Clone, Copy)]
+pub enum EnemyMovePattern {
+    Straight,
+    Zigzag,
+    Homing,
+}

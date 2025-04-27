@@ -1,7 +1,6 @@
 use crate::GameState;
 use crate::components::collider::*;
-use crate::components::player::Player;
-use crate::components::player::PlayerAsset;
+use crate::components::player::*;
 use crate::systems::sets::MySystemSet;
 use bevy::prelude::*;
 
@@ -15,16 +14,48 @@ impl Plugin for PlayerPlugin {
         )
         .add_systems(
             OnEnter(GameState::Playing),
+            load_damage_sound.in_set(MySystemSet::LoadAssets),
+        )
+        .add_systems(
+            OnEnter(GameState::Playing),
             spawn_player.after(MySystemSet::LoadAssets),
         )
+        .add_systems(
+            OnEnter(GameState::Playing),
+            spawn_hp.after(MySystemSet::LoadAssets),
+        )
+        .add_systems(Update, update_heart.run_if(in_state(GameState::Playing)))
         .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
-        .add_systems(OnExit(GameState::Playing), cleanup_player);
+        .add_systems(
+            Update,
+            player_invincible_timer_system.run_if(in_state(GameState::Playing)),
+        )
+        .add_systems(
+            Update,
+            player_blink_system.run_if(in_state(GameState::Playing)),
+        )
+        .add_systems(OnExit(GameState::Playing), cleanup_player)
+        .add_systems(OnExit(GameState::Playing), cleanup_heart);
     }
 }
 
 fn load_player_asset(mut commands: Commands, asset_server: Res<AssetServer>) {
     let texture = asset_server.load("Rocket.png");
     commands.insert_resource(PlayerAsset { texture });
+    let fill_texture = asset_server.load("fill_heart.png");
+    let empty_texture = asset_server.load("empty_heart.png");
+    commands.insert_resource(HeartAsset {
+        fill_texture,
+        empty_texture,
+    });
+}
+
+fn load_damage_sound(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let damage_sound = asset_server.load("damage.ogg");
+
+    commands.insert_resource(DamageSound {
+        sound: damage_sound,
+    });
 }
 
 fn spawn_player(mut commands: Commands, player_asset: Res<PlayerAsset>) {
@@ -42,8 +73,49 @@ fn spawn_player(mut commands: Commands, player_asset: Res<PlayerAsset>) {
             },
             tag: ColliderTag::Player,
         },
-        Player,
+        Player {
+            max_hp: 3,
+            hp: 3,
+            invincible_timer: Timer::from_seconds(1.0, TimerMode::Once),
+        },
     ));
+}
+
+fn player_invincible_timer_system(time: Res<Time>, mut query: Query<&mut Player>) {
+    for mut player in &mut query {
+        if player.invincible_timer.remaining_secs() > 0.0 {
+            player.invincible_timer.tick(time.delta());
+        }
+    }
+}
+
+fn player_blink_system(mut query: Query<(&Player, &mut Sprite)>) {
+    for (player, mut sprite) in &mut query {
+        if player.is_invincible() {
+            let time = player.invincible_timer.elapsed_secs();
+            let blink_speed = 0.1;
+
+            if (time / blink_speed) as i32 % 2 == 0 {
+                sprite.color.set_alpha(1.0);
+            } else {
+                sprite.color.set_alpha(0.0);
+            }
+        } else {
+            sprite.color.set_alpha(1.0);
+        }
+    }
+}
+
+fn spawn_hp(mut commands: Commands, asset: Res<HeartAsset>, query: Query<&Player>) {
+    if let Ok(player) = query.get_single() {
+        for i in 0..player.max_hp {
+            commands.spawn((
+                Sprite::from_image(asset.fill_texture.clone()),
+                Transform::from_xyz((i as f32) * 60.0, 330.0, 0.0),
+                Heart,
+            ));
+        }
+    }
 }
 
 fn player_movement(
@@ -92,7 +164,48 @@ fn player_movement(
     }
 }
 
+fn update_heart(
+    mut commands: Commands,
+    player_query: Query<&Player>,
+    heart_query: Query<Entity, With<Heart>>,
+    asset: Res<HeartAsset>,
+) {
+    for entity in &heart_query {
+        commands.entity(entity).despawn_recursive();
+    }
+    if let Ok(player) = player_query.get_single() {
+        for i in 0..player.hp {
+            commands.spawn((
+                Sprite::from_image(asset.fill_texture.clone()),
+                Transform::from_xyz((i as f32) * 60.0, 330.0, 0.0),
+                Heart,
+            ));
+        }
+
+        for i in player.hp..player.max_hp {
+            commands.spawn((
+                Sprite::from_image(asset.empty_texture.clone()),
+                Transform::from_xyz((i as f32) * 60.0, 330.0, 0.0),
+                Heart,
+            ));
+        }
+    }
+}
+
 fn cleanup_player(mut commands: Commands, mut query: Query<Entity, With<Player>>) {
-    let entity = query.single_mut();
-    commands.entity(entity).despawn_recursive();
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn cleanup_heart(mut commands: Commands, mut query: Query<Entity, With<Heart>>) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+impl Player {
+    pub fn is_invincible(&self) -> bool {
+        !self.invincible_timer.finished()
+    }
 }

@@ -12,6 +12,7 @@ impl Plugin for MainMenuPlugin {
 }
 
 fn setup_menu(mut commands: Commands) {
+    commands.insert_resource(ClearColor(Color::BLACK));
     commands.spawn((
         Text::new("- Press Space to Start -"),
         TextFont {

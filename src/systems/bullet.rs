@@ -37,36 +37,39 @@ fn bullet_spawn(
     sound_asset: Res<BulletSound>,
 ) {
     cooldown.timer.tick(time.delta());
-    if !keyboard.pressed(KeyCode::Space) {
-        return;
-    }
+    //if !keyboard.pressed(KeyCode::Space) {
+    //    return;
+    //}
 
-    if !cooldown.timer.finished() {
-        return;
-    }
+    //if !cooldown.timer.finished() {
+    //    return;
+    //}
 
-    if let Ok(player_transform) = query.get_single() {
-        let player_pos = player_transform.translation;
-        commands.spawn((
-            Sprite {
-                color: Color::srgb(1.0, 1.0, 0.0),
-                custom_size: Some(Vec2::new(3.0, 3.0)),
-                ..default()
-            },
-            Transform {
-                translation: Vec3::new(player_pos.x, player_pos.y + 30.0, 0.0),
-                ..default()
-            },
-            Collider {
-                shape: ColliderShape::Rectangle {
-                    size: Vec2::new(3.0, 3.0),
+    if keyboard.pressed(KeyCode::Space) && cooldown.timer.finished() {
+        if let Ok(player_transform) = query.get_single() {
+            let player_pos = player_transform.translation;
+            commands.spawn((
+                Sprite {
+                    color: Color::srgb(1.0, 1.0, 0.0),
+                    custom_size: Some(Vec2::new(3.0, 3.0)),
+                    ..default()
                 },
-                tag: ColliderTag::Bullet,
-            },
-            Bullet,
-        ));
+                Transform {
+                    translation: Vec3::new(player_pos.x, player_pos.y + 30.0, 0.0),
+                    ..default()
+                },
+                Collider {
+                    shape: ColliderShape::Rectangle {
+                        size: Vec2::new(3.0, 3.0),
+                    },
+                    tag: ColliderTag::Bullet,
+                },
+                Bullet,
+            ));
 
-        audio.play(sound_asset.sound.clone()).with_volume(0.2);
+            audio.play(sound_asset.sound.clone()).with_volume(0.2);
+            cooldown.timer.reset();
+        }
     }
 }
 
