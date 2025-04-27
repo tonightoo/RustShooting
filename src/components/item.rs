@@ -1,0 +1,15 @@
+use bevy::prelude::*;
+
+#[derive(Component, Clone, Copy)]
+pub enum ItemType {
+    RapidFire,
+    PiercingShot,
+    Shield,
+}
+
+#[derive(Resource, Clone)]
+pub struct ItemAssets {
+    pub rapid_fire_texture: Handle<Image>,
+    pub piercing_shot_texture: Handle<Image>,
+    pub shield_texture: Handle<Image>,
+}

@@ -101,8 +101,12 @@ pub fn collision_system(
                     }
                 }
                 (ColliderTag::Enemy, ColliderTag::Bullet) => {
+                    if let Ok(player) = player_query.get_single() {
+                        if !player.piercing {
+                            commands.entity(e2).despawn();
+                        }
+                    }
                     commands.entity(e1).despawn();
-                    commands.entity(e2).despawn();
                     spawn_explosion(
                         &mut commands,
                         t1.translation.clone(),
@@ -132,7 +136,11 @@ pub fn collision_system(
                     }
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
-                    commands.entity(e1).despawn();
+                    if let Ok(player) = player_query.get_single() {
+                        if !player.piercing {
+                            commands.entity(e1).despawn();
+                        }
+                    }
                     commands.entity(e2).despawn();
                     spawn_explosion(
                         &mut commands,

@@ -18,4 +18,5 @@ pub enum ColliderTag {
     Player,
     Enemy,
     Bullet,
+    Item,
 }
