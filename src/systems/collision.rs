@@ -58,7 +58,8 @@ pub fn collision_system(
 
         if collision {
             match (c1.tag, c2.tag) {
-                (ColliderTag::Player, ColliderTag::Enemy) => {
+                (ColliderTag::Player, ColliderTag::Enemy)
+                | (ColliderTag::Player, ColliderTag::EnemyBullet) => {
                     if let Ok(mut player) = player_query.get_mut(e1) {
                         if player.invincible_timer.finished() {
                             player.hp -= 1;
@@ -79,7 +80,8 @@ pub fn collision_system(
                         }
                     }
                 }
-                (ColliderTag::Enemy, ColliderTag::Player) => {
+                (ColliderTag::Enemy, ColliderTag::Player)
+                | (ColliderTag::EnemyBullet, ColliderTag::Player) => {
                     if let Ok(mut player) = player_query.get_mut(e2) {
                         if player.invincible_timer.finished() {
                             player.hp -= 1;
@@ -124,7 +126,7 @@ pub fn collision_system(
                         let item_type = match rng.random_range(0..3) {
                             0 => ItemType::RapidFire,
                             1 => ItemType::PiercingShot,
-                            2 => ItemType::Shield,
+                            2 => ItemType::Heal,
                             _ => ItemType::RapidFire,
                         };
                         spawn_item(
@@ -159,7 +161,7 @@ pub fn collision_system(
                         let item_type = match rng.random_range(0..3) {
                             0 => ItemType::RapidFire,
                             1 => ItemType::PiercingShot,
-                            2 => ItemType::Shield,
+                            2 => ItemType::Heal,
                             _ => ItemType::RapidFire,
                         };
                         spawn_item(

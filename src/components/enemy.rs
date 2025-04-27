@@ -22,3 +22,8 @@ pub enum EnemyMovePattern {
     Zigzag,
     Homing,
 }
+
+#[derive(Component)]
+pub struct EnemyFireTimer {
+    pub timer: Timer,
+}

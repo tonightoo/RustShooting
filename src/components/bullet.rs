@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct Bullet;
+pub struct Bullet {
+    pub is_player: bool,
+    pub speed: f32,
+}
 
 #[derive(Resource)]
 pub struct BulletCooldown {

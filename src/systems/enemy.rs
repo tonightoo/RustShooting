@@ -1,5 +1,6 @@
 use crate::GameState;
 use crate::components::animation::*;
+use crate::components::bullet::Bullet;
 use crate::components::collider::*;
 use crate::components::enemy::*;
 use crate::components::player::Player;
@@ -17,6 +18,10 @@ impl Plugin for EnemyPlugin {
             })
             .add_systems(Update, spawn_enemy.run_if(in_state(GameState::Playing)))
             .add_systems(Update, enemy_movement.run_if(in_state(GameState::Playing)))
+            .add_systems(
+                Update,
+                enemy_fire_system.run_if(in_state(GameState::Playing)),
+            )
             .add_systems(OnExit(GameState::Playing), cleanup_enemies);
     }
 }
@@ -91,7 +96,46 @@ fn spawn_enemy(
         },
         Enemy,
         move_pattern,
+        EnemyFireTimer {
+            timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+        },
     ));
+}
+
+fn enemy_fire_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(&Transform, &mut EnemyFireTimer)>,
+) {
+    for (transform, mut timer) in query.iter_mut() {
+        timer.timer.tick(time.delta());
+
+        if timer.timer.finished() {
+            commands.spawn((
+                Sprite {
+                    color: Color::srgb(0.5, 0.0, 0.5),
+                    custom_size: Some(Vec2::new(3.0, 3.0)),
+                    ..default()
+                },
+                Transform {
+                    translation: transform.translation,
+                    ..default()
+                },
+                Collider {
+                    shape: ColliderShape::Rectangle {
+                        size: Vec2::new(3.0, 3.0),
+                    },
+                    tag: ColliderTag::EnemyBullet,
+                },
+                Bullet {
+                    is_player: false,
+                    speed: 400.0,
+                },
+            ));
+
+            timer.timer.reset();
+        }
+    }
 }
 
 fn enemy_movement(

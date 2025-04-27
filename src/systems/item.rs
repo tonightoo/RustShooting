@@ -20,12 +20,12 @@ impl Plugin for ItemPlugin {
 pub fn load_items(mut commands: Commands, asset_server: Res<AssetServer>) {
     let rapid_fire_texture = asset_server.load("rapid_fire.png");
     let piercing_shot_texture = asset_server.load("piercing_shot.png");
-    let shield_texture = asset_server.load("shield.png");
+    let heal_texture = asset_server.load("apple.png");
 
     commands.insert_resource(ItemAssets {
         rapid_fire_texture,
         piercing_shot_texture,
-        shield_texture,
+        heal_texture,
     });
 }
 
@@ -38,7 +38,7 @@ pub fn spawn_item(
     let asset = match item_type {
         ItemType::RapidFire => item_assets.rapid_fire_texture.clone(),
         ItemType::PiercingShot => item_assets.piercing_shot_texture.clone(),
-        ItemType::Shield => item_assets.shield_texture.clone(),
+        ItemType::Heal => item_assets.heal_texture.clone(),
     };
 
     commands.spawn((
@@ -68,7 +68,7 @@ pub fn apply_item_effect(player: &mut Player, item: ItemType) {
         ItemType::PiercingShot => {
             player.piercing = true;
         }
-        ItemType::Shield => {
+        ItemType::Heal => {
             player.hp += 1;
             if player.max_hp < player.hp {
                 player.hp = player.max_hp;

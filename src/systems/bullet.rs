@@ -74,7 +74,10 @@ fn bullet_spawn(
                     },
                     tag: ColliderTag::Bullet,
                 },
-                Bullet,
+                Bullet {
+                    is_player: true,
+                    speed: 600.0,
+                },
             ));
 
             audio.play(sound_asset.sound.clone()).with_volume(0.2);
@@ -85,14 +88,17 @@ fn bullet_spawn(
 
 fn bullet_movement(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Transform), With<Bullet>>,
+    mut query: Query<(Entity, &mut Transform, &Bullet), With<Bullet>>,
     time: Res<Time>,
 ) {
-    const SPEED: f32 = 600.0;
-    for (entity, mut transform) in &mut query {
-        transform.translation.y += SPEED * time.delta_secs();
+    for (entity, mut transform, bullet) in &mut query {
+        if bullet.is_player {
+            transform.translation.y += bullet.speed * time.delta_secs();
+        } else {
+            transform.translation.y -= bullet.speed * time.delta_secs();
+        }
 
-        if transform.translation.y >= 360.0 {
+        if transform.translation.y >= 360.0 || transform.translation.y < -360.0 {
             commands.entity(entity).despawn();
         }
     }
