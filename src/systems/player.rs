@@ -61,11 +61,6 @@ fn load_damage_sound(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn spawn_player(mut commands: Commands, player_asset: Res<PlayerAsset>) {
     commands.spawn((
         Sprite::from_image(player_asset.texture.clone()),
-        //Sprite {
-        //    color: Color::srgb(0.3, 0.7, 1.0),
-        //    custom_size: Some(Vec2::new(30.0, 40.0)),
-        //    ..default()
-        //},
         Transform::from_xyz(0.0, -300.0, 0.0),
         Collider {
             shape: ColliderShape::Rectangle {
@@ -77,6 +72,8 @@ fn spawn_player(mut commands: Commands, player_asset: Res<PlayerAsset>) {
             max_hp: 3,
             hp: 3,
             invincible_timer: Timer::from_seconds(1.0, TimerMode::Once),
+            shoot_interval: 0.2,
+            piercing: false,
         },
     ));
 }

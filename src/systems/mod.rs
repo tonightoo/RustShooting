@@ -3,6 +3,7 @@ pub mod bullet;
 pub mod collision;
 pub mod enemy;
 pub mod explosion;
+pub mod item;
 pub mod player;
 pub mod score;
 pub mod sets;

@@ -1,13 +1,15 @@
 use crate::GameState;
 use crate::components::collider::*;
 use crate::components::explosion::*;
+use crate::components::item::*;
 use crate::components::player::*;
 use crate::components::score::Score;
 use crate::components::wave::*;
 use crate::systems::explosion::spawn_explosion;
-use crate::systems::wave::*;
+use crate::systems::item::*;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
+use rand::Rng;
 
 pub struct CollisionPlugin;
 
@@ -23,6 +25,7 @@ impl Plugin for CollisionPlugin {
 pub fn collision_system(
     query: Query<(Entity, &Transform, &Collider)>,
     mut player_query: Query<&mut Player>,
+    mut item_query: Query<&mut ItemType>,
     mut commands: Commands,
     explosion: Res<ExplosionAsset>,
     audio: Res<bevy_kira_audio::prelude::Audio>,
@@ -30,6 +33,7 @@ pub fn collision_system(
     damage_sound: Res<DamageSound>,
     mut score: ResMut<Score>,
     mut waves: ResMut<Waves>,
+    item_assets: Res<ItemAssets>,
 ) {
     let mut pairs = query.iter_combinations::<2>();
 
@@ -81,7 +85,7 @@ pub fn collision_system(
                             player.hp -= 1;
                             player.invincible_timer = Timer::from_seconds(2.0, TimerMode::Once);
 
-                            if player.hp < 0 {
+                            if player.hp <= 0 {
                                 spawn_explosion(
                                     &mut commands,
                                     t2.translation.clone(),
@@ -109,6 +113,23 @@ pub fn collision_system(
                     score.score += 100;
                     let current_wave = waves.current_wave;
                     waves.waves[current_wave].defeated_count += 1;
+
+                    let mut rng = rand::rng();
+                    let value = rng.random_range(0..100);
+                    if value < 30 {
+                        let item_type = match rng.random_range(0..3) {
+                            0 => ItemType::RapidFire,
+                            1 => ItemType::PiercingShot,
+                            2 => ItemType::Shield,
+                            _ => ItemType::RapidFire,
+                        };
+                        spawn_item(
+                            &mut commands,
+                            &item_assets,
+                            item_type,
+                            t1.translation.clone(),
+                        );
+                    }
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
                     commands.entity(e1).despawn();
@@ -123,6 +144,39 @@ pub fn collision_system(
                     score.score += 100;
                     let current_wave = waves.current_wave;
                     waves.waves[current_wave].defeated_count += 1;
+
+                    let mut rng = rand::rng();
+                    let value = rng.random_range(0..100);
+                    if value < 30 {
+                        let item_type = match rng.random_range(0..3) {
+                            0 => ItemType::RapidFire,
+                            1 => ItemType::PiercingShot,
+                            2 => ItemType::Shield,
+                            _ => ItemType::RapidFire,
+                        };
+                        spawn_item(
+                            &mut commands,
+                            &item_assets,
+                            item_type,
+                            t1.translation.clone(),
+                        );
+                    }
+                }
+                (ColliderTag::Player, ColliderTag::Item) => {
+                    if let Ok(item) = item_query.get(e2) {
+                        if let Ok(mut player) = player_query.get_mut(e1) {
+                            apply_item_effect(&mut player, *item);
+                            commands.entity(e2).despawn_recursive();
+                        }
+                    }
+                }
+                (ColliderTag::Item, ColliderTag::Player) => {
+                    if let Ok(item) = item_query.get(e1) {
+                        if let Ok(mut player) = player_query.get_mut(e2) {
+                            apply_item_effect(&mut player, *item);
+                            commands.entity(e1).despawn_recursive();
+                        }
+                    }
                 }
                 _ => {}
             }

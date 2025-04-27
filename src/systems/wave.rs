@@ -39,7 +39,7 @@ fn load_waves(
             Wave {
                 number: 1,
                 defeated_count: 0,
-                target_count: 10,
+                target_count: 20,
                 enemy_speed: 300.0,
                 spawn_interval: 0.3,
             },
