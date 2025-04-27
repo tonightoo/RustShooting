@@ -21,8 +21,14 @@ fn setup_menu(mut commands: Commands) {
         TextLayout::new_with_justify(JustifyText::Center),
         Node {
             position_type: PositionType::Absolute,
-            top: Val::Percent(60.0),
-            left: Val::Percent(20.0),
+            //justify_content: JustifyContent::Center,
+            //align_items: AlignItems::Center,
+            justify_self: JustifySelf::Center,
+            align_self: AlignSelf::Center,
+            //box_sizing: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            display: Display::Flex,
+            //top: Val::Percent(60.0),
+            //left: Val::Percent(20.0),
             ..default()
         },
     ));

@@ -1,6 +1,6 @@
 use crate::GameState;
 use crate::components::collider::*;
-use crate::components::explosion::{ExplosionAsset, ExplosionSound};
+use crate::components::explosion::*;
 use crate::components::score::Score;
 use crate::systems::explosion::spawn_explosion;
 use bevy::prelude::*;
@@ -48,21 +48,47 @@ pub fn collision_system(
 
         if collision {
             match (c1.tag, c2.tag) {
-                (ColliderTag::Player, ColliderTag::Enemy)
-                | (ColliderTag::Enemy, ColliderTag::Player) => {
-                    //damage
+                (ColliderTag::Player, ColliderTag::Enemy) => {
+                    spawn_explosion(
+                        &mut commands,
+                        t1.translation.clone(),
+                        &explosion,
+                        ExplosionTag::Player,
+                    );
+                    audio.play(sound_asset.sound.clone()).with_volume(0.2);
+                    commands.entity(e1).despawn();
+                }
+                (ColliderTag::Enemy, ColliderTag::Player) => {
+                    spawn_explosion(
+                        &mut commands,
+                        t2.translation.clone(),
+                        &explosion,
+                        ExplosionTag::Player,
+                    );
+                    audio.play(sound_asset.sound.clone()).with_volume(0.2);
+                    commands.entity(e2).despawn();
                 }
                 (ColliderTag::Enemy, ColliderTag::Bullet) => {
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
-                    spawn_explosion(&mut commands, t1.translation.clone(), &explosion);
+                    spawn_explosion(
+                        &mut commands,
+                        t1.translation.clone(),
+                        &explosion,
+                        ExplosionTag::Enemy,
+                    );
                     audio.play(sound_asset.sound.clone()).with_volume(0.2);
                     score.score += 100;
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
-                    spawn_explosion(&mut commands, t2.translation.clone(), &explosion);
+                    spawn_explosion(
+                        &mut commands,
+                        t2.translation.clone(),
+                        &explosion,
+                        ExplosionTag::Enemy,
+                    );
                     audio.play(sound_asset.sound.clone()).with_volume(0.2);
                     score.score += 100;
                 }

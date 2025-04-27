@@ -93,6 +93,6 @@ fn player_movement(
 }
 
 fn cleanup_player(mut commands: Commands, mut query: Query<Entity, With<Player>>) {
-    let entity = query.single_mut();
-    commands.entity(entity).despawn_recursive();
+    //let entity = query.single_mut();
+    //commands.entity(entity).despawn_recursive();
 }

@@ -7,3 +7,8 @@ pub struct Player;
 pub struct PlayerAsset {
     pub texture: Handle<Image>,
 }
+
+#[derive(Resource)]
+pub struct DeadTimer {
+    pub timer: Timer,
+}

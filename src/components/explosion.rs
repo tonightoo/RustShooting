@@ -12,3 +12,9 @@ pub struct ExplosionAsset {
 pub struct ExplosionSound {
     pub sound: Handle<bevy_kira_audio::AudioSource>,
 }
+
+#[derive(Component, Clone)]
+pub enum ExplosionTag {
+    Player,
+    Enemy,
+}

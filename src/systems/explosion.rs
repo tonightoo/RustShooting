@@ -46,7 +46,12 @@ fn load_explosion_sound(mut commands: Commands, asset_server: Res<AssetServer>) 
     });
 }
 
-pub fn spawn_explosion(commands: &mut Commands, position: Vec3, explosion_asset: &ExplosionAsset) {
+pub fn spawn_explosion(
+    commands: &mut Commands,
+    position: Vec3,
+    explosion_asset: &ExplosionAsset,
+    tag: ExplosionTag,
+) {
     commands.spawn((
         Sprite::from_atlas_image(
             explosion_asset.texture.clone(),
@@ -57,5 +62,6 @@ pub fn spawn_explosion(commands: &mut Commands, position: Vec3, explosion_asset:
         ),
         Transform::from_translation(position),
         explosion_asset.anim_config.clone(),
+        tag,
     ));
 }
