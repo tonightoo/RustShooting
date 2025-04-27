@@ -1,13 +1,14 @@
 use crate::GameState;
 use crate::components::explosion::ExplosionTag;
 use crate::components::player::*;
-use crate::components::score::GameOverText;
+use crate::components::wave::*;
 use crate::systems::animation::AnimationPlugin;
 use crate::systems::bullet::BulletPlugin;
 use crate::systems::collision::CollisionPlugin;
 use crate::systems::enemy::EnemyPlugin;
 use crate::systems::player::PlayerPlugin;
 use crate::systems::score::ScorePlugin;
+use crate::systems::wave::WavePlugin;
 use bevy::prelude::*;
 use std::time::Duration;
 
@@ -22,6 +23,7 @@ impl Plugin for PlayingPlugin {
             .add_plugins(AnimationPlugin)
             .add_plugins(CollisionPlugin)
             .add_plugins(ScorePlugin)
+            .add_plugins(WavePlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)))
             .add_systems(OnExit(GameState::Playing), despawn_gameover_text);
     }

@@ -1,16 +1,13 @@
 use crate::GameState;
 use bevy::prelude::*;
 
-pub struct GameOverPlugin;
+pub struct ClearPlugin;
 
-impl Plugin for GameOverPlugin {
+impl Plugin for ClearPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::GameOver), setup_game_over)
-            .add_systems(
-                Update,
-                game_over_system.run_if(in_state(GameState::GameOver)),
-            )
-            .add_systems(OnExit(GameState::GameOver), cleanup_game_over);
+        app.add_systems(OnEnter(GameState::Clear), setup_game_over)
+            .add_systems(Update, game_over_system.run_if(in_state(GameState::Clear)))
+            .add_systems(OnExit(GameState::Clear), cleanup_game_over);
     }
 }
 

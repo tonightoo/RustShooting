@@ -2,7 +2,9 @@ use crate::GameState;
 use crate::components::collider::*;
 use crate::components::explosion::*;
 use crate::components::score::Score;
+use crate::components::wave::*;
 use crate::systems::explosion::spawn_explosion;
+use crate::systems::wave::*;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -24,6 +26,7 @@ pub fn collision_system(
     audio: Res<bevy_kira_audio::prelude::Audio>,
     sound_asset: Res<ExplosionSound>,
     mut score: ResMut<Score>,
+    mut waves: ResMut<Waves>,
 ) {
     let mut pairs = query.iter_combinations::<2>();
 
@@ -79,6 +82,8 @@ pub fn collision_system(
                     );
                     audio.play(sound_asset.sound.clone()).with_volume(0.2);
                     score.score += 100;
+                    let current_wave = waves.current_wave;
+                    waves.waves[current_wave].defeated_count += 1;
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
                     commands.entity(e1).despawn();
@@ -91,6 +96,8 @@ pub fn collision_system(
                     );
                     audio.play(sound_asset.sound.clone()).with_volume(0.2);
                     score.score += 100;
+                    let current_wave = waves.current_wave;
+                    waves.waves[current_wave].defeated_count += 1;
                 }
                 _ => {}
             }

@@ -4,14 +4,14 @@ mod states;
 mod systems;
 use crate::systems::explosion::ExplosionPlugin;
 use states::*;
-use states::{GameOverPlugin, PlayingPlugin};
+use states::{ClearPlugin, PlayingPlugin};
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 enum GameState {
     #[default]
     MainMenu,
     Playing,
-    GameOver,
+    Clear,
 }
 
 fn main() {
@@ -31,7 +31,7 @@ fn main() {
         .add_systems(Startup, setup)
         .add_plugins(MainMenuPlugin)
         .add_plugins(PlayingPlugin)
-        .add_plugins(GameOverPlugin)
+        .add_plugins(ClearPlugin)
         .add_plugins(ExplosionPlugin)
         .run();
 }

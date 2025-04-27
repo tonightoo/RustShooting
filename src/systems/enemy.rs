@@ -2,6 +2,7 @@ use crate::GameState;
 use crate::components::animation::*;
 use crate::components::collider::*;
 use crate::components::enemy::*;
+use crate::components::wave::*;
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -81,11 +82,12 @@ fn enemy_movement(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Transform), With<Enemy>>,
     time: Res<Time>,
+    waves: Res<Waves>,
 ) {
-    const SPEED: f32 = 200.0;
+    let speed: f32 = waves.waves[waves.current_wave].enemy_speed;
 
     for (entity, mut transform) in &mut query {
-        transform.translation.y -= 1.0 * SPEED * time.delta_secs();
+        transform.translation.y -= 1.0 * speed * time.delta_secs();
 
         if transform.translation.y <= -380.0 {
             commands.entity(entity).despawn_recursive();
