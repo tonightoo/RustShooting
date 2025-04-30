@@ -84,7 +84,7 @@ fn playing_system(
 
             timer.timer.pause();
             if keyboard.just_pressed(KeyCode::Space) {
-                next_state.set(GameState::MainMenu);
+                next_state.set(GameState::Title);
             }
         }
     }

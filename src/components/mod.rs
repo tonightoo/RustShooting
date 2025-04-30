@@ -6,4 +6,5 @@ pub mod explosion;
 pub mod item;
 pub mod player;
 pub mod score;
+pub mod stage;
 pub mod wave;

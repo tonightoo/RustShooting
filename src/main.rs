@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use systems::stage::StageSelectPlugin;
 mod components;
 mod states;
 mod systems;
@@ -9,7 +10,8 @@ use states::{ClearPlugin, PlayingPlugin};
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 enum GameState {
     #[default]
-    MainMenu,
+    Title,
+    StageSelect,
     Playing,
     Clear,
 }
@@ -30,6 +32,7 @@ fn main() {
         .init_state::<GameState>()
         .add_systems(Startup, setup)
         .add_plugins(MainMenuPlugin)
+        .add_plugins(StageSelectPlugin)
         .add_plugins(PlayingPlugin)
         .add_plugins(ClearPlugin)
         .add_plugins(ExplosionPlugin)

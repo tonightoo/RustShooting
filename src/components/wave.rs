@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Wave {
     pub number: u32,
     pub defeated_count: u32,
@@ -9,7 +9,7 @@ pub struct Wave {
     pub spawn_interval: f32,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Clone, Debug)]
 pub struct Waves {
     pub waves: Vec<Wave>,
     pub current_wave: usize,
