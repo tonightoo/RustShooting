@@ -30,7 +30,7 @@ fn main() {
         .insert_resource(ClearColor(Color::BLACK))
         .init_state::<GameState>()
         .add_systems(Startup, setup)
-        .add_plugins(MainMenuPlugin)
+        .add_plugins(TitlePlugin)
         .add_plugins(StageSelectPlugin)
         .add_plugins(PlayingPlugin)
         .add_plugins(ClearPlugin)

@@ -87,24 +87,26 @@ fn enemy_fire_system(
     mut commands: Commands,
     time: Res<Time>,
     mut query: Query<(&Transform, &mut EnemyFireTimer)>,
+    assets: Res<GameAssets>,
 ) {
     for (transform, mut timer) in query.iter_mut() {
         timer.timer.tick(time.delta());
 
         if timer.timer.finished() {
             commands.spawn((
-                Sprite {
-                    color: Color::srgb(0.5, 0.0, 0.5),
-                    custom_size: Some(Vec2::new(3.0, 3.0)),
-                    ..default()
-                },
+                Sprite::from_image(assets.blue_egg_texture.clone()),
+                //Sprite {
+                //    color: Color::srgb(0.5, 0.0, 0.5),
+                //    custom_size: Some(Vec2::new(3.0, 3.0)),
+                //    ..default()
+                //},
                 Transform {
                     translation: transform.translation,
                     ..default()
                 },
                 Collider {
                     shape: ColliderShape::Rectangle {
-                        size: Vec2::new(3.0, 3.0),
+                        size: Vec2::new(30.0, 30.0),
                     },
                     tag: ColliderTag::EnemyBullet,
                 },

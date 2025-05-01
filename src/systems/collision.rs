@@ -149,7 +149,7 @@ fn handle_player_enemy_collision(
                     ExplosionTag::Player,
                 );
                 audio.play(assets.explosion_sound.clone()).with_volume(0.2);
-                &commands.entity(player_entity).despawn();
+                commands.entity(player_entity).despawn();
             } else {
                 audio.play(assets.damage_sound.clone()).with_volume(0.2);
             }

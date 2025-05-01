@@ -1,9 +1,9 @@
 use crate::GameState;
 use bevy::prelude::*;
 
-pub struct MainMenuPlugin;
+pub struct TitlePlugin;
 
-impl Plugin for MainMenuPlugin {
+impl Plugin for TitlePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Title), setup_menu)
             .add_systems(Update, menu_system.run_if(in_state(GameState::Title)))

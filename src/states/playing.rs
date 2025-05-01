@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::components::assets::*;
 use crate::components::explosion::ExplosionTag;
 use crate::components::player::*;
 use crate::components::wave::*;
@@ -10,8 +11,10 @@ use crate::systems::enemy::EnemyPlugin;
 use crate::systems::item::ItemPlugin;
 use crate::systems::player::PlayerPlugin;
 use crate::systems::score::ScorePlugin;
+use crate::systems::sets::MySystemSet;
 use crate::systems::wave::WavePlugin;
 use bevy::prelude::*;
+use bevy_kira_audio::prelude::*;
 use std::time::Duration;
 
 pub struct PlayingPlugin;
@@ -19,6 +22,10 @@ pub struct PlayingPlugin;
 impl Plugin for PlayingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Playing), initialize_background)
+            .add_systems(
+                OnEnter(GameState::Playing),
+                start_bgm.after(MySystemSet::LoadAssets),
+            )
             .add_plugins(AssetsPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
@@ -29,7 +36,8 @@ impl Plugin for PlayingPlugin {
             .add_plugins(WavePlugin)
             .add_plugins(ItemPlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)))
-            .add_systems(OnExit(GameState::Playing), despawn_gameover_text);
+            .add_systems(OnExit(GameState::Playing), despawn_gameover_text)
+            .add_systems(OnExit(GameState::Playing), stop_bgm);
     }
 }
 
@@ -38,6 +46,13 @@ fn initialize_background(mut commands: Commands) {
     commands.insert_resource(DeadTimer {
         timer: Timer::from_seconds(0.0, TimerMode::Once),
     });
+}
+
+fn start_bgm(assets: Res<GameAssets>, audio: Res<bevy_kira_audio::prelude::Audio>) {
+    audio
+        .play(assets.playing_bgm.clone())
+        .with_volume(0.2)
+        .looped();
 }
 
 fn playing_system(
@@ -100,4 +115,8 @@ fn despawn_gameover_text(mut commands: Commands, query: Query<Entity, With<GameO
     for entity in &query {
         commands.entity(entity).despawn_recursive();
     }
+}
+
+fn stop_bgm(audio: Res<bevy_kira_audio::prelude::Audio>) {
+    audio.stop();
 }

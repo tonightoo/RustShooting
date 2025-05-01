@@ -29,10 +29,13 @@ fn load_assets(
         rapid_fire_texture: asset_server.load("textures/rapid_fire.png"),
         piercing_shot_texture: asset_server.load("textures/piercing_shot.png"),
         apple_texture: asset_server.load("textures/apple.png"),
+        blue_egg_texture: asset_server.load("textures/blue_egg.png"),
+        yellow_egg_texture: asset_server.load("textures/yellow_egg.png"),
 
         shoot_sound: asset_server.load("sounds/shoot.ogg"),
         damage_sound: asset_server.load("sounds/damage.ogg"),
         explosion_sound: asset_server.load("sounds/explosion.ogg"),
+        playing_bgm: asset_server.load("sounds/jumpstart.ogg"),
     };
 
     commands.insert_resource(game_assets);
