@@ -1,7 +1,6 @@
 use crate::GameState;
 use crate::components::stage::*;
 use bevy::prelude::*;
-use std::collections::HashMap;
 
 pub struct StageSelectPlugin;
 

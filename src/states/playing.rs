@@ -3,6 +3,7 @@ use crate::components::explosion::ExplosionTag;
 use crate::components::player::*;
 use crate::components::wave::*;
 use crate::systems::animation::AnimationPlugin;
+use crate::systems::assets::*;
 use crate::systems::bullet::BulletPlugin;
 use crate::systems::collision::CollisionPlugin;
 use crate::systems::enemy::EnemyPlugin;
@@ -18,6 +19,7 @@ pub struct PlayingPlugin;
 impl Plugin for PlayingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Playing), initialize_background)
+            .add_plugins(AssetsPlugin)
             .add_plugins(PlayerPlugin)
             .add_plugins(EnemyPlugin)
             .add_plugins(BulletPlugin)

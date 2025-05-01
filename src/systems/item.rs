@@ -1,44 +1,28 @@
 use crate::GameState;
+use crate::components::assets::*;
 use crate::components::collider::*;
 use crate::components::item::*;
 use crate::components::player::*;
-use crate::systems::sets::MySystemSet;
 use bevy::prelude::*;
 
 pub struct ItemPlugin;
 
 impl Plugin for ItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(GameState::Playing),
-            load_items.in_set(MySystemSet::LoadAssets),
-        )
-        .add_systems(OnExit(GameState::Playing), cleanup_items);
+        app.add_systems(OnExit(GameState::Playing), cleanup_items);
     }
-}
-
-pub fn load_items(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let rapid_fire_texture = asset_server.load("rapid_fire.png");
-    let piercing_shot_texture = asset_server.load("piercing_shot.png");
-    let heal_texture = asset_server.load("apple.png");
-
-    commands.insert_resource(ItemAssets {
-        rapid_fire_texture,
-        piercing_shot_texture,
-        heal_texture,
-    });
 }
 
 pub fn spawn_item(
     commands: &mut Commands,
-    item_assets: &Res<ItemAssets>,
+    assets: &Res<GameAssets>,
     item_type: ItemType,
     position: Vec3,
 ) {
     let asset = match item_type {
-        ItemType::RapidFire => item_assets.rapid_fire_texture.clone(),
-        ItemType::PiercingShot => item_assets.piercing_shot_texture.clone(),
-        ItemType::Heal => item_assets.heal_texture.clone(),
+        ItemType::RapidFire => assets.rapid_fire_texture.clone(),
+        ItemType::PiercingShot => assets.piercing_shot_texture.clone(),
+        ItemType::Heal => assets.apple_texture.clone(),
     };
 
     commands.spawn((

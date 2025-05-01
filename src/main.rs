@@ -3,7 +3,6 @@ use systems::stage::StageSelectPlugin;
 mod components;
 mod states;
 mod systems;
-use crate::systems::explosion::ExplosionPlugin;
 use states::*;
 use states::{ClearPlugin, PlayingPlugin};
 
@@ -35,7 +34,6 @@ fn main() {
         .add_plugins(StageSelectPlugin)
         .add_plugins(PlayingPlugin)
         .add_plugins(ClearPlugin)
-        .add_plugins(ExplosionPlugin)
         .run();
 }
 

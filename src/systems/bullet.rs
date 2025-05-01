@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::components::assets::*;
 use crate::components::bullet::*;
 use crate::components::collider::*;
 use crate::components::player::Player;
@@ -10,23 +11,14 @@ pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), load_bullet_sound)
-            .insert_resource(BulletCooldown {
-                timer: Timer::from_seconds(2.0, TimerMode::Repeating),
-            })
-            .add_systems(Update, update_cooldown.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, bullet_spawn.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, bullet_movement.run_if(in_state(GameState::Playing)))
-            .add_systems(OnExit(GameState::Playing), cleanup_bullets);
+        app.insert_resource(BulletCooldown {
+            timer: Timer::from_seconds(2.0, TimerMode::Repeating),
+        })
+        .add_systems(Update, update_cooldown.run_if(in_state(GameState::Playing)))
+        .add_systems(Update, bullet_spawn.run_if(in_state(GameState::Playing)))
+        .add_systems(Update, bullet_movement.run_if(in_state(GameState::Playing)))
+        .add_systems(OnExit(GameState::Playing), cleanup_bullets);
     }
-}
-
-fn load_bullet_sound(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let bullet_sound = asset_server.load("shoot.ogg");
-
-    commands.insert_resource(BulletSound {
-        sound: bullet_sound,
-    });
 }
 
 fn update_cooldown(query: Query<&Player>, mut cooldown: ResMut<BulletCooldown>) {
@@ -44,16 +36,9 @@ fn bullet_spawn(
     mut cooldown: ResMut<BulletCooldown>,
     time: Res<Time>,
     audio: Res<bevy_kira_audio::prelude::Audio>,
-    sound_asset: Res<BulletSound>,
+    assets: Res<GameAssets>,
 ) {
     cooldown.timer.tick(time.delta());
-    //if !keyboard.pressed(KeyCode::Space) {
-    //    return;
-    //}
-
-    //if !cooldown.timer.finished() {
-    //    return;
-    //}
 
     if keyboard.pressed(KeyCode::Space) && cooldown.timer.finished() {
         if let Ok(player_transform) = query.get_single() {
@@ -80,7 +65,7 @@ fn bullet_spawn(
                 },
             ));
 
-            audio.play(sound_asset.sound.clone()).with_volume(0.2);
+            audio.play(assets.shoot_sound.clone()).with_volume(0.2);
             cooldown.timer.reset();
         }
     }

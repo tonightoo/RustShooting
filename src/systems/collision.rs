@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::components::assets::*;
 use crate::components::collider::*;
 use crate::components::explosion::*;
 use crate::components::item::*;
@@ -25,15 +26,12 @@ impl Plugin for CollisionPlugin {
 pub fn collision_system(
     query: Query<(Entity, &Transform, &Collider)>,
     mut player_query: Query<&mut Player>,
-    mut item_query: Query<&mut ItemType>,
+    item_query: Query<&mut ItemType>,
     mut commands: Commands,
-    explosion: Res<ExplosionAsset>,
+    assets: Res<GameAssets>,
     audio: Res<bevy_kira_audio::prelude::Audio>,
-    explosion_sound: Res<ExplosionSound>,
-    damage_sound: Res<DamageSound>,
     mut score: ResMut<Score>,
     mut waves: ResMut<Waves>,
-    item_assets: Res<ItemAssets>,
 ) {
     let mut pairs = query.iter_combinations::<2>();
 
@@ -69,13 +67,13 @@ pub fn collision_system(
                                 spawn_explosion(
                                     &mut commands,
                                     t1.translation.clone(),
-                                    &explosion,
+                                    &assets,
                                     ExplosionTag::Player,
                                 );
-                                audio.play(explosion_sound.sound.clone()).with_volume(0.2);
+                                audio.play(assets.explosion_sound.clone()).with_volume(0.2);
                                 commands.entity(e1).despawn();
                             } else {
-                                audio.play(damage_sound.sound.clone()).with_volume(0.2);
+                                audio.play(assets.damage_sound.clone()).with_volume(0.2);
                             }
                         }
                     }
@@ -91,13 +89,13 @@ pub fn collision_system(
                                 spawn_explosion(
                                     &mut commands,
                                     t2.translation.clone(),
-                                    &explosion,
+                                    &assets,
                                     ExplosionTag::Player,
                                 );
-                                audio.play(explosion_sound.sound.clone()).with_volume(0.2);
+                                audio.play(assets.explosion_sound.clone()).with_volume(0.2);
                                 commands.entity(e2).despawn();
                             } else {
-                                audio.play(damage_sound.sound.clone()).with_volume(0.2);
+                                audio.play(assets.damage_sound.clone()).with_volume(0.2);
                             }
                         }
                     }
@@ -112,10 +110,10 @@ pub fn collision_system(
                     spawn_explosion(
                         &mut commands,
                         t1.translation.clone(),
-                        &explosion,
+                        &assets,
                         ExplosionTag::Enemy,
                     );
-                    audio.play(explosion_sound.sound.clone()).with_volume(0.2);
+                    audio.play(assets.explosion_sound.clone()).with_volume(0.2);
                     score.score += 100;
                     let current_wave = waves.current_wave;
                     waves.waves[current_wave].defeated_count += 1;
@@ -129,12 +127,7 @@ pub fn collision_system(
                             2 => ItemType::Heal,
                             _ => ItemType::RapidFire,
                         };
-                        spawn_item(
-                            &mut commands,
-                            &item_assets,
-                            item_type,
-                            t1.translation.clone(),
-                        );
+                        spawn_item(&mut commands, &assets, item_type, t1.translation.clone());
                     }
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
@@ -147,10 +140,10 @@ pub fn collision_system(
                     spawn_explosion(
                         &mut commands,
                         t2.translation.clone(),
-                        &explosion,
+                        &assets,
                         ExplosionTag::Enemy,
                     );
-                    audio.play(explosion_sound.sound.clone()).with_volume(0.2);
+                    audio.play(assets.explosion_sound.clone()).with_volume(0.2);
                     score.score += 100;
                     let current_wave = waves.current_wave;
                     waves.waves[current_wave].defeated_count += 1;
@@ -164,12 +157,7 @@ pub fn collision_system(
                             2 => ItemType::Heal,
                             _ => ItemType::RapidFire,
                         };
-                        spawn_item(
-                            &mut commands,
-                            &item_assets,
-                            item_type,
-                            t1.translation.clone(),
-                        );
+                        spawn_item(&mut commands, &assets, item_type, t1.translation.clone());
                     }
                 }
                 (ColliderTag::Player, ColliderTag::Item) => {

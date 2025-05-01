@@ -1,4 +1,5 @@
 pub mod animation;
+pub mod assets;
 pub mod bullet;
 pub mod collider;
 pub mod enemy;

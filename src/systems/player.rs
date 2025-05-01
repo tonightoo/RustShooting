@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::components::assets::*;
 use crate::components::collider::*;
 use crate::components::player::*;
 use crate::systems::sets::MySystemSet;
@@ -9,14 +10,6 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            OnEnter(GameState::Playing),
-            load_player_asset.in_set(MySystemSet::LoadAssets),
-        )
-        .add_systems(
-            OnEnter(GameState::Playing),
-            load_damage_sound.in_set(MySystemSet::LoadAssets),
-        )
-        .add_systems(
             OnEnter(GameState::Playing),
             spawn_player.after(MySystemSet::LoadAssets),
         )
@@ -39,28 +32,9 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn load_player_asset(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture = asset_server.load("Rocket.png");
-    commands.insert_resource(PlayerAsset { texture });
-    let fill_texture = asset_server.load("fill_heart.png");
-    let empty_texture = asset_server.load("empty_heart.png");
-    commands.insert_resource(HeartAsset {
-        fill_texture,
-        empty_texture,
-    });
-}
-
-fn load_damage_sound(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let damage_sound = asset_server.load("damage.ogg");
-
-    commands.insert_resource(DamageSound {
-        sound: damage_sound,
-    });
-}
-
-fn spawn_player(mut commands: Commands, player_asset: Res<PlayerAsset>) {
+fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     commands.spawn((
-        Sprite::from_image(player_asset.texture.clone()),
+        Sprite::from_image(assets.player_texture.clone()),
         Transform::from_xyz(0.0, -300.0, 0.0),
         Collider {
             shape: ColliderShape::Rectangle {
@@ -103,11 +77,11 @@ fn player_blink_system(mut query: Query<(&Player, &mut Sprite)>) {
     }
 }
 
-fn spawn_hp(mut commands: Commands, asset: Res<HeartAsset>, query: Query<&Player>) {
+fn spawn_hp(mut commands: Commands, assets: Res<GameAssets>, query: Query<&Player>) {
     if let Ok(player) = query.get_single() {
         for i in 0..player.max_hp {
             commands.spawn((
-                Sprite::from_image(asset.fill_texture.clone()),
+                Sprite::from_image(assets.fill_heart_texture.clone()),
                 Transform::from_xyz((i as f32) * 60.0, 330.0, 0.0),
                 Heart,
             ));
@@ -165,7 +139,7 @@ fn update_heart(
     mut commands: Commands,
     player_query: Query<&Player>,
     heart_query: Query<Entity, With<Heart>>,
-    asset: Res<HeartAsset>,
+    assets: Res<GameAssets>,
 ) {
     for entity in &heart_query {
         commands.entity(entity).despawn_recursive();
@@ -173,7 +147,7 @@ fn update_heart(
     if let Ok(player) = player_query.get_single() {
         for i in 0..player.hp {
             commands.spawn((
-                Sprite::from_image(asset.fill_texture.clone()),
+                Sprite::from_image(assets.fill_heart_texture.clone()),
                 Transform::from_xyz((i as f32) * 60.0, 330.0, 0.0),
                 Heart,
             ));
@@ -181,7 +155,7 @@ fn update_heart(
 
         for i in player.hp..player.max_hp {
             commands.spawn((
-                Sprite::from_image(asset.empty_texture.clone()),
+                Sprite::from_image(assets.empty_heart_texture.clone()),
                 Transform::from_xyz((i as f32) * 60.0, 330.0, 0.0),
                 Heart,
             ));
@@ -189,13 +163,13 @@ fn update_heart(
     }
 }
 
-fn cleanup_player(mut commands: Commands, mut query: Query<Entity, With<Player>>) {
+fn cleanup_player(mut commands: Commands, query: Query<Entity, With<Player>>) {
     for entity in &query {
         commands.entity(entity).despawn_recursive();
     }
 }
 
-fn cleanup_heart(mut commands: Commands, mut query: Query<Entity, With<Heart>>) {
+fn cleanup_heart(mut commands: Commands, query: Query<Entity, With<Heart>>) {
     for entity in &query {
         commands.entity(entity).despawn_recursive();
     }

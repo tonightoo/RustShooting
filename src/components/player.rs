@@ -13,22 +13,6 @@ pub struct Player {
 pub struct Heart;
 
 #[derive(Resource)]
-pub struct PlayerAsset {
-    pub texture: Handle<Image>,
-}
-
-#[derive(Resource)]
-pub struct HeartAsset {
-    pub fill_texture: Handle<Image>,
-    pub empty_texture: Handle<Image>,
-}
-
-#[derive(Resource)]
 pub struct DeadTimer {
     pub timer: Timer,
-}
-
-#[derive(Resource)]
-pub struct DamageSound {
-    pub sound: Handle<bevy_kira_audio::AudioSource>,
 }

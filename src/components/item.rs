@@ -6,10 +6,3 @@ pub enum ItemType {
     PiercingShot,
     Heal,
 }
-
-#[derive(Resource, Clone)]
-pub struct ItemAssets {
-    pub rapid_fire_texture: Handle<Image>,
-    pub piercing_shot_texture: Handle<Image>,
-    pub heal_texture: Handle<Image>,
-}
