@@ -58,126 +58,162 @@ pub fn collision_system(
             match (c1.tag, c2.tag) {
                 (ColliderTag::Player, ColliderTag::Enemy)
                 | (ColliderTag::Player, ColliderTag::EnemyBullet) => {
-                    if let Ok(mut player) = player_query.get_mut(e1) {
-                        if player.invincible_timer.finished() {
-                            player.hp -= 1;
-                            player.invincible_timer = Timer::from_seconds(2.0, TimerMode::Once);
-
-                            if player.hp <= 0 {
-                                spawn_explosion(
-                                    &mut commands,
-                                    t1.translation.clone(),
-                                    &assets,
-                                    ExplosionTag::Player,
-                                );
-                                audio.play(assets.explosion_sound.clone()).with_volume(0.2);
-                                commands.entity(e1).despawn();
-                            } else {
-                                audio.play(assets.damage_sound.clone()).with_volume(0.2);
-                            }
-                        }
-                    }
+                    handle_player_enemy_collision(
+                        &mut commands,
+                        &mut player_query,
+                        &assets,
+                        &audio,
+                        e1.clone(),
+                        t1.clone(),
+                    );
                 }
                 (ColliderTag::Enemy, ColliderTag::Player)
                 | (ColliderTag::EnemyBullet, ColliderTag::Player) => {
-                    if let Ok(mut player) = player_query.get_mut(e2) {
-                        if player.invincible_timer.finished() {
-                            player.hp -= 1;
-                            player.invincible_timer = Timer::from_seconds(2.0, TimerMode::Once);
-
-                            if player.hp <= 0 {
-                                spawn_explosion(
-                                    &mut commands,
-                                    t2.translation.clone(),
-                                    &assets,
-                                    ExplosionTag::Player,
-                                );
-                                audio.play(assets.explosion_sound.clone()).with_volume(0.2);
-                                commands.entity(e2).despawn();
-                            } else {
-                                audio.play(assets.damage_sound.clone()).with_volume(0.2);
-                            }
-                        }
-                    }
+                    handle_player_enemy_collision(
+                        &mut commands,
+                        &mut player_query,
+                        &assets,
+                        &audio,
+                        e2.clone(),
+                        t2.clone(),
+                    );
                 }
                 (ColliderTag::Enemy, ColliderTag::Bullet) => {
-                    if let Ok(player) = player_query.get_single() {
-                        if !player.piercing {
-                            commands.entity(e2).despawn();
-                        }
-                    }
-                    commands.entity(e1).despawn();
-                    spawn_explosion(
+                    handle_enemy_bullet_collision(
                         &mut commands,
-                        t1.translation.clone(),
+                        &mut player_query,
                         &assets,
-                        ExplosionTag::Enemy,
+                        &audio,
+                        &mut score,
+                        &mut waves,
+                        e1.clone(),
+                        e2.clone(),
+                        t1.clone(),
                     );
-                    audio.play(assets.explosion_sound.clone()).with_volume(0.2);
-                    score.score += 100;
-                    let current_wave = waves.current_wave;
-                    waves.waves[current_wave].defeated_count += 1;
-
-                    let mut rng = rand::rng();
-                    let value = rng.random_range(0..100);
-                    if value < 30 {
-                        let item_type = match rng.random_range(0..3) {
-                            0 => ItemType::RapidFire,
-                            1 => ItemType::PiercingShot,
-                            2 => ItemType::Heal,
-                            _ => ItemType::RapidFire,
-                        };
-                        spawn_item(&mut commands, &assets, item_type, t1.translation.clone());
-                    }
                 }
                 (ColliderTag::Bullet, ColliderTag::Enemy) => {
-                    if let Ok(player) = player_query.get_single() {
-                        if !player.piercing {
-                            commands.entity(e1).despawn();
-                        }
-                    }
-                    commands.entity(e2).despawn();
-                    spawn_explosion(
+                    handle_enemy_bullet_collision(
                         &mut commands,
-                        t2.translation.clone(),
+                        &mut player_query,
                         &assets,
-                        ExplosionTag::Enemy,
+                        &audio,
+                        &mut score,
+                        &mut waves,
+                        e2.clone(),
+                        e1.clone(),
+                        t2.clone(),
                     );
-                    audio.play(assets.explosion_sound.clone()).with_volume(0.2);
-                    score.score += 100;
-                    let current_wave = waves.current_wave;
-                    waves.waves[current_wave].defeated_count += 1;
-
-                    let mut rng = rand::rng();
-                    let value = rng.random_range(0..100);
-                    if value < 30 {
-                        let item_type = match rng.random_range(0..3) {
-                            0 => ItemType::RapidFire,
-                            1 => ItemType::PiercingShot,
-                            2 => ItemType::Heal,
-                            _ => ItemType::RapidFire,
-                        };
-                        spawn_item(&mut commands, &assets, item_type, t1.translation.clone());
-                    }
                 }
                 (ColliderTag::Player, ColliderTag::Item) => {
-                    if let Ok(item) = item_query.get(e2) {
-                        if let Ok(mut player) = player_query.get_mut(e1) {
-                            apply_item_effect(&mut player, *item);
-                            commands.entity(e2).despawn_recursive();
-                        }
-                    }
+                    handle_player_item_collision(
+                        &mut commands,
+                        &item_query,
+                        &mut player_query,
+                        e1,
+                        e2,
+                    );
                 }
                 (ColliderTag::Item, ColliderTag::Player) => {
-                    if let Ok(item) = item_query.get(e1) {
-                        if let Ok(mut player) = player_query.get_mut(e2) {
-                            apply_item_effect(&mut player, *item);
-                            commands.entity(e1).despawn_recursive();
-                        }
-                    }
+                    handle_player_item_collision(
+                        &mut commands,
+                        &item_query,
+                        &mut player_query,
+                        e2,
+                        e1,
+                    );
                 }
                 _ => {}
             }
+        }
+    }
+}
+
+fn handle_player_enemy_collision(
+    commands: &mut Commands,
+    player_query: &mut Query<&mut Player>,
+    assets: &Res<GameAssets>,
+    audio: &Res<bevy_kira_audio::prelude::Audio>,
+    player_entity: Entity,
+    player_transform: Transform,
+) {
+    if let Ok(mut player) = player_query.get_mut(player_entity) {
+        if player.invincible_timer.finished() {
+            player.hp -= 1;
+            player.invincible_timer = Timer::from_seconds(2.0, TimerMode::Once);
+
+            if player.hp <= 0 {
+                spawn_explosion(
+                    commands,
+                    player_transform.translation.clone(),
+                    &assets,
+                    ExplosionTag::Player,
+                );
+                audio.play(assets.explosion_sound.clone()).with_volume(0.2);
+                &commands.entity(player_entity).despawn();
+            } else {
+                audio.play(assets.damage_sound.clone()).with_volume(0.2);
+            }
+        }
+    }
+}
+
+fn handle_enemy_bullet_collision(
+    commands: &mut Commands,
+    player_query: &mut Query<&mut Player>,
+    assets: &Res<GameAssets>,
+    audio: &Res<bevy_kira_audio::prelude::Audio>,
+    score: &mut ResMut<Score>,
+    waves: &mut ResMut<Waves>,
+    enemy_entity: Entity,
+    bullet_entity: Entity,
+    enemy_transform: Transform,
+) {
+    if let Ok(player) = player_query.get_single() {
+        if !player.piercing {
+            commands.entity(bullet_entity).despawn();
+        }
+    }
+    commands.entity(enemy_entity).despawn();
+    spawn_explosion(
+        commands,
+        enemy_transform.translation.clone(),
+        &assets,
+        ExplosionTag::Enemy,
+    );
+    audio.play(assets.explosion_sound.clone()).with_volume(0.2);
+    score.score += 100;
+    let current_wave = waves.current_wave;
+    waves.waves[current_wave].defeated_count += 1;
+
+    let mut rng = rand::rng();
+    let value = rng.random_range(0..100);
+    if value < 30 {
+        let item_type = match rng.random_range(0..3) {
+            0 => ItemType::RapidFire,
+            1 => ItemType::PiercingShot,
+            2 => ItemType::Heal,
+            _ => ItemType::RapidFire,
+        };
+        spawn_item(
+            commands,
+            &assets,
+            item_type,
+            enemy_transform.translation.clone(),
+        );
+    }
+}
+
+fn handle_player_item_collision(
+    commands: &mut Commands,
+    item_query: &Query<&mut ItemType>,
+    player_query: &mut Query<&mut Player>,
+    player_entity: Entity,
+    item_entity: Entity,
+) {
+    if let Ok(item) = item_query.get(item_entity) {
+        if let Ok(mut player) = player_query.get_mut(player_entity) {
+            apply_item_effect(&mut player, *item);
+            commands.entity(item_entity).despawn_recursive();
         }
     }
 }
