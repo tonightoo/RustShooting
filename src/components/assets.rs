@@ -18,6 +18,7 @@ pub struct GameAssets {
     pub damage_sound: Handle<bevy_kira_audio::AudioSource>,
     pub explosion_sound: Handle<bevy_kira_audio::AudioSource>,
     pub playing_bgm: Handle<bevy_kira_audio::AudioSource>,
+    pub clear_bgm: Handle<bevy_kira_audio::AudioSource>,
 }
 
 #[derive(Clone)]

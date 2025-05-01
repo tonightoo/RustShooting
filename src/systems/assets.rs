@@ -9,7 +9,7 @@ pub struct AssetsPlugin;
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            OnEnter(GameState::Playing),
+            OnEnter(GameState::Title),
             load_assets.in_set(MySystemSet::LoadAssets),
         );
     }
@@ -36,6 +36,7 @@ fn load_assets(
         damage_sound: asset_server.load("sounds/damage.ogg"),
         explosion_sound: asset_server.load("sounds/explosion.ogg"),
         playing_bgm: asset_server.load("sounds/jumpstart.ogg"),
+        clear_bgm: asset_server.load("sounds/PixelPulse.ogg"),
     };
 
     commands.insert_resource(game_assets);
