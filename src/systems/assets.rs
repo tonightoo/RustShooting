@@ -31,6 +31,9 @@ fn load_assets(
         apple_texture: asset_server.load("textures/apple.png"),
         blue_egg_texture: asset_server.load("textures/blue_egg.png"),
         yellow_egg_texture: asset_server.load("textures/yellow_egg.png"),
+        ground_texture: asset_server.load("textures/ground.png"),
+        ocean_texture: asset_server.load("textures/ocean.png"),
+        universe_texture: asset_server.load("textures/universe.png"),
 
         shoot_sound: asset_server.load("sounds/shoot.ogg"),
         damage_sound: asset_server.load("sounds/damage.ogg"),

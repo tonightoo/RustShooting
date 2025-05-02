@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use systems::stage::StageSelectPlugin;
+use states::stage::StageSelectPlugin;
 mod components;
 mod states;
 mod systems;

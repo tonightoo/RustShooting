@@ -78,7 +78,7 @@ fn player_blink_system(mut query: Query<(&Player, &mut Sprite)>) {
 }
 
 fn spawn_hp(mut commands: Commands, assets: Res<GameAssets>, query: Query<&Player>) {
-    if let Ok(player) = query.get_single() {
+    if let Ok(player) = query.single() {
         for i in 0..player.max_hp {
             commands.spawn((
                 Sprite::from_image(assets.fill_heart_texture.clone()),
@@ -142,9 +142,9 @@ fn update_heart(
     assets: Res<GameAssets>,
 ) {
     for entity in &heart_query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
-    if let Ok(player) = player_query.get_single() {
+    if let Ok(player) = player_query.single() {
         for i in 0..player.hp {
             commands.spawn((
                 Sprite::from_image(assets.fill_heart_texture.clone()),
@@ -165,13 +165,13 @@ fn update_heart(
 
 fn cleanup_player(mut commands: Commands, query: Query<Entity, With<Player>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }
 
 fn cleanup_heart(mut commands: Commands, query: Query<Entity, With<Heart>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }
 

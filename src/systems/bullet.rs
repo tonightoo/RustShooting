@@ -22,7 +22,7 @@ impl Plugin for BulletPlugin {
 }
 
 fn update_cooldown(query: Query<&Player>, mut cooldown: ResMut<BulletCooldown>) {
-    if let Ok(player) = query.get_single() {
+    if let Ok(player) = query.single() {
         if Duration::from_secs_f32(player.shoot_interval.clone()) != cooldown.timer.duration() {
             cooldown.timer = Timer::from_seconds(player.shoot_interval, TimerMode::Repeating);
         }
@@ -41,7 +41,7 @@ fn bullet_spawn(
     cooldown.timer.tick(time.delta());
 
     if keyboard.pressed(KeyCode::Space) && cooldown.timer.finished() {
-        if let Ok(player_transform) = query.get_single() {
+        if let Ok(player_transform) = query.single() {
             let player_pos = player_transform.translation;
             commands.spawn((
                 Sprite {
@@ -91,6 +91,6 @@ fn bullet_movement(
 
 fn cleanup_bullets(mut commands: Commands, query: Query<Entity, With<Bullet>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

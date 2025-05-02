@@ -43,6 +43,6 @@ fn menu_system(mut next_state: ResMut<NextState<GameState>>, keyboard: Res<Butto
 
 fn cleanup_menu(mut commands: Commands, query: Query<Entity, With<Text>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

@@ -33,7 +33,7 @@ pub fn execute_animation(
                 if config.animation_type == AnimationType::Loop {
                     atlas.index = config.first_sprite_index;
                 } else if config.animation_type == AnimationType::Once {
-                    commands.entity(entity).despawn_recursive();
+                    commands.entity(entity).despawn();
                     continue;
                 }
             } else {
@@ -45,6 +45,6 @@ pub fn execute_animation(
 
 pub fn cleanup_animations(mut commands: Commands, query: Query<Entity, With<AnimationConfig>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

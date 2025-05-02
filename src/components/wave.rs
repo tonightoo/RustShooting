@@ -9,11 +9,11 @@ pub struct Wave {
     pub spawn_interval: f32,
 }
 
-#[derive(Resource, Clone, Debug)]
-pub struct Waves {
-    pub waves: Vec<Wave>,
-    pub current_wave: usize,
-}
+//#[derive(Resource, Clone, Debug)]
+//pub struct Waves {
+//    pub waves: Vec<Wave>,
+//    pub current_wave: usize,
+//}
 
 #[derive(Component)]
 pub struct GameOverText;

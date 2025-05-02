@@ -8,5 +8,4 @@ pub mod item;
 pub mod player;
 pub mod score;
 pub mod sets;
-pub mod stage;
 pub mod wave;

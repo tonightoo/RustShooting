@@ -2,6 +2,7 @@ use crate::GameState;
 use crate::components::assets::*;
 use crate::components::explosion::ExplosionTag;
 use crate::components::player::*;
+use crate::components::stage::*;
 use crate::components::wave::*;
 use crate::systems::animation::AnimationPlugin;
 use crate::systems::assets::*;
@@ -12,7 +13,6 @@ use crate::systems::item::ItemPlugin;
 use crate::systems::player::PlayerPlugin;
 use crate::systems::score::ScorePlugin;
 use crate::systems::sets::MySystemSet;
-use crate::systems::wave::WavePlugin;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 use std::time::Duration;
@@ -33,19 +33,29 @@ impl Plugin for PlayingPlugin {
             .add_plugins(AnimationPlugin)
             .add_plugins(CollisionPlugin)
             .add_plugins(ScorePlugin)
-            .add_plugins(WavePlugin)
             .add_plugins(ItemPlugin)
             .add_systems(Update, playing_system.run_if(in_state(GameState::Playing)))
             .add_systems(OnExit(GameState::Playing), despawn_gameover_text)
-            .add_systems(OnExit(GameState::Playing), stop_bgm);
+            .add_systems(OnExit(GameState::Playing), stop_bgm)
+            .add_systems(OnExit(GameState::Playing), despawn_background);
     }
 }
 
-fn initialize_background(mut commands: Commands) {
-    commands.insert_resource(ClearColor(Color::srgb(0.7, 0.44, 0.25)));
+fn initialize_background(mut commands: Commands, stage_db: Res<StageDatabase>) {
+    //commands.insert_resource(ClearColor(Color::srgb(0.7, 0.44, 0.25)));
     commands.insert_resource(DeadTimer {
         timer: Timer::from_seconds(0.0, TimerMode::Once),
     });
+
+    commands.spawn((
+        Sprite::from_image(
+            stage_db.settings[stage_db.current_index]
+                .background_image
+                .clone(),
+        ),
+        Transform::from_xyz(0.0, 0.0, -1.0),
+        BackgroundImage,
+    ));
 }
 
 fn start_bgm(assets: Res<GameAssets>, audio: Res<bevy_kira_audio::prelude::Audio>) {
@@ -113,7 +123,13 @@ fn playing_system(
 
 fn despawn_gameover_text(mut commands: Commands, query: Query<Entity, With<GameOverText>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
+    }
+}
+
+fn despawn_background(mut commands: Commands, query: Query<Entity, With<BackgroundImage>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
     }
 }
 

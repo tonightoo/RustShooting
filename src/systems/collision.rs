@@ -5,6 +5,7 @@ use crate::components::explosion::*;
 use crate::components::item::*;
 use crate::components::player::*;
 use crate::components::score::Score;
+use crate::components::stage::*;
 use crate::components::wave::*;
 use crate::systems::explosion::spawn_explosion;
 use crate::systems::item::*;
@@ -31,7 +32,8 @@ pub fn collision_system(
     assets: Res<GameAssets>,
     audio: Res<bevy_kira_audio::prelude::Audio>,
     mut score: ResMut<Score>,
-    mut waves: ResMut<Waves>,
+    mut stage_db: ResMut<StageDatabase>,
+    //mut waves: ResMut<Waves>,
 ) {
     let mut pairs = query.iter_combinations::<2>();
 
@@ -85,7 +87,8 @@ pub fn collision_system(
                         &assets,
                         &audio,
                         &mut score,
-                        &mut waves,
+                        &mut stage_db,
+                        //&mut waves,
                         e1.clone(),
                         e2.clone(),
                         t1.clone(),
@@ -98,7 +101,8 @@ pub fn collision_system(
                         &assets,
                         &audio,
                         &mut score,
-                        &mut waves,
+                        &mut stage_db,
+                        //&mut waves,
                         e2.clone(),
                         e1.clone(),
                         t2.clone(),
@@ -163,12 +167,13 @@ fn handle_enemy_bullet_collision(
     assets: &Res<GameAssets>,
     audio: &Res<bevy_kira_audio::prelude::Audio>,
     score: &mut ResMut<Score>,
-    waves: &mut ResMut<Waves>,
+    stage_db: &mut ResMut<StageDatabase>,
+    //waves: &mut ResMut<Waves>,
     enemy_entity: Entity,
     bullet_entity: Entity,
     enemy_transform: Transform,
 ) {
-    if let Ok(player) = player_query.get_single() {
+    if let Ok(player) = player_query.single() {
         if !player.piercing {
             commands.entity(bullet_entity).despawn();
         }
@@ -182,8 +187,11 @@ fn handle_enemy_bullet_collision(
     );
     audio.play(assets.explosion_sound.clone()).with_volume(0.2);
     score.score += 100;
-    let current_wave = waves.current_wave;
-    waves.waves[current_wave].defeated_count += 1;
+    //let current_wave = waves.current_wave;
+    //waves.waves[current_wave].defeated_count += 1;
+    let stage_index = stage_db.current_index.clone();
+    let wave_index = stage_db.settings[stage_index].current_index;
+    stage_db.settings[stage_index].waves[wave_index].defeated_count += 1;
 
     let mut rng = rand::rng();
     let value = rng.random_range(0..100);
@@ -213,7 +221,7 @@ fn handle_player_item_collision(
     if let Ok(item) = item_query.get(item_entity) {
         if let Ok(mut player) = player_query.get_mut(player_entity) {
             apply_item_effect(&mut player, *item);
-            commands.entity(item_entity).despawn_recursive();
+            commands.entity(item_entity).despawn();
         }
     }
 }

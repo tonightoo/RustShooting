@@ -39,6 +39,6 @@ fn update_score(mut query: Query<&mut TextSpan, With<ScoreText>>, score: Res<Sco
 
 fn despawn_score(mut commands: Commands, mut query: Query<Entity, With<ScoreText>>) {
     for entity in &mut query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

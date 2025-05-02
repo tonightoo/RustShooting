@@ -13,6 +13,9 @@ pub struct GameAssets {
     pub apple_texture: Handle<Image>,
     pub blue_egg_texture: Handle<Image>,
     pub yellow_egg_texture: Handle<Image>,
+    pub ground_texture: Handle<Image>,
+    pub ocean_texture: Handle<Image>,
+    pub universe_texture: Handle<Image>,
 
     pub shoot_sound: Handle<bevy_kira_audio::AudioSource>,
     pub damage_sound: Handle<bevy_kira_audio::AudioSource>,
