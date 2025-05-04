@@ -19,3 +19,8 @@ pub enum EnemyMovePattern {
 pub struct EnemyFireTimer {
     pub timer: Timer,
 }
+
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+pub enum EnemyKind {
+    Dino,
+}
