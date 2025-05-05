@@ -30,3 +30,9 @@ pub struct AnimAsset {
     pub layout: Handle<TextureAtlasLayout>,
     pub anim_config: AnimationConfig,
 }
+
+#[derive(Clone)]
+pub enum AssetVisual {
+    Static(Handle<Image>),
+    Animated(AnimAsset),
+}

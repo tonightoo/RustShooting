@@ -1,6 +1,6 @@
 use crate::GameState;
 use crate::components::assets::*;
-use crate::components::enemy::EnemySpawnTimer;
+use crate::components::enemy::*;
 use crate::components::stage::*;
 use crate::components::wave::*;
 use crate::systems::sets::MySystemSet;
@@ -45,6 +45,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 10,
                         enemy_speed: 200.0,
                         spawn_interval: 2.0,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                     Wave {
                         number: 1,
@@ -52,6 +53,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 20,
                         enemy_speed: 300.0,
                         spawn_interval: 0.3,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoZigzag, 1.0)]),
                     },
                     Wave {
                         number: 2,
@@ -59,6 +61,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 10,
                         enemy_speed: 500.0,
                         spawn_interval: 0.1,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoHoming, 1.0)]),
                     },
                 ],
                 current_index: 0,
@@ -73,6 +76,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 10,
                         enemy_speed: 100.0,
                         spawn_interval: 0.1,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                     Wave {
                         number: 1,
@@ -80,6 +84,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 20,
                         enemy_speed: 200.0,
                         spawn_interval: 0.1,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                     Wave {
                         number: 2,
@@ -87,6 +92,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 10,
                         enemy_speed: 500.0,
                         spawn_interval: 0.1,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                 ],
                 current_index: 0,
@@ -101,6 +107,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 10,
                         enemy_speed: 500.0,
                         spawn_interval: 2.0,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                     Wave {
                         number: 1,
@@ -108,6 +115,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 20,
                         enemy_speed: 500.0,
                         spawn_interval: 1.0,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                     Wave {
                         number: 2,
@@ -115,6 +123,7 @@ fn load_stages(mut commands: Commands, assets: Res<GameAssets>) {
                         target_count: 10,
                         enemy_speed: 500.0,
                         spawn_interval: 0.1,
+                        enemy_distribution: HashMap::from([(EnemyKind::DinoStraight, 1.0)]),
                     },
                 ],
                 current_index: 0,
@@ -200,7 +209,7 @@ fn update_waves(
     let stage_index = stage_db.current_index;
     let mut wave_index = stage_db.settings[stage_index].current_index;
     let wave_length = stage_db.settings[stage_index].waves.len();
-    let wave = stage_db.settings[stage_index].waves[wave_index];
+    let wave = stage_db.settings[stage_index].waves[wave_index].clone();
 
     if wave.defeated_count >= wave.target_count {
         if wave_index == wave_length - 1 {

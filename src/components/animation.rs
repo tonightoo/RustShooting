@@ -29,7 +29,7 @@ impl AnimationConfig {
     }
 }
 
-#[derive(Eq, PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Copy)]
 pub enum AnimationType {
     Loop,
     Once,
